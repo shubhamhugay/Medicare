@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.medicare.entity.Doctor;
+import com.medicare.exception.DoctorNotFoundException;
 import com.medicare.repository.DoctorRepository;
 
 @Service
@@ -28,31 +29,31 @@ public class DoctorService {
 
     public Doctor getDoctorById(Long id) {
 
-        return doctorRepository
-                .findById(id)
-                .orElse(null);
+        return findDoctorById(id);
     }
 
-    public Doctor updateDoctor(Long id, Doctor doctorDetails) {
+    public Doctor updateDoctor(
+            Long id,
+            Doctor doctorDetails) {
 
-        Doctor existingDoctor = doctorRepository
-                .findById(id)
-                .orElse(null);
+        Doctor existingDoctor = findDoctorById(id);
 
-        if (existingDoctor == null) {
-            return null;
-        }
+        existingDoctor.setName(
+                doctorDetails.getName()
+        );
 
-        existingDoctor.setName(doctorDetails.getName());
         existingDoctor.setSpecialization(
                 doctorDetails.getSpecialization()
         );
+
         existingDoctor.setExperienceYears(
                 doctorDetails.getExperienceYears()
         );
+
         existingDoctor.setConsultationFee(
                 doctorDetails.getConsultationFee()
         );
+
         existingDoctor.setPhotoUrl(
                 doctorDetails.getPhotoUrl()
         );
@@ -60,14 +61,25 @@ public class DoctorService {
         return doctorRepository.save(existingDoctor);
     }
 
-    public boolean deleteDoctor(Long id) {
+    public void deleteDoctor(Long id) {
 
-        if (!doctorRepository.existsById(id)) {
-            return false;
-        }
+        Doctor doctor = findDoctorById(id);
 
-        doctorRepository.deleteById(id);
+        doctorRepository.delete(doctor);
+    }
 
-        return true;
+    /*
+     * Common method used whenever we need to find a doctor.
+     * If the doctor does not exist, it throws an exception.
+     */
+    private Doctor findDoctorById(Long id) {
+
+        return doctorRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor not found with id: " + id
+                        )
+                );
     }
 }
