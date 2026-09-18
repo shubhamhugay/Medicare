@@ -68,4 +68,43 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(errorResponse);
     }
+
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse>
+    handleUserNotFound(
+            UserNotFoundException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse>
+    handleIllegalArgument(
+            IllegalArgumentException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .badRequest()
+                .body(errorResponse);
+    }
 }

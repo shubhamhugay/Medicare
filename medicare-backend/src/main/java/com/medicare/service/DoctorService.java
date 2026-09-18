@@ -4,81 +4,135 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.medicare.entity.Doctor;
+import com.medicare.dto.DoctorProfileRequest;
+import com.medicare.entity.DoctorProfile;
+import com.medicare.entity.Role;
+import com.medicare.entity.User;
 import com.medicare.exception.DoctorNotFoundException;
-import com.medicare.repository.DoctorRepository;
+import com.medicare.exception.UserNotFoundException;
+import com.medicare.repository.DoctorProfileRepository;
+import com.medicare.repository.UserRepository;
 
 @Service
 public class DoctorService {
 
-    private final DoctorRepository doctorRepository;
+    private final DoctorProfileRepository doctorRepository;
+    private final UserRepository userRepository;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(
+            DoctorProfileRepository doctorRepository,
+            UserRepository userRepository) {
+
         this.doctorRepository = doctorRepository;
+        this.userRepository = userRepository;
     }
 
-    public Doctor createDoctor(Doctor doctor) {
+    public DoctorProfile createDoctor(
+            DoctorProfileRequest request) {
+
+        User user = findUserById(
+                request.getUserId()
+        );
+
+        if (user.getRole() != Role.DOCTOR) {
+            throw new IllegalArgumentException(
+                    "Doctor profile can only be created for a DOCTOR user"
+            );
+        }
+
+        if (doctorRepository.existsByUserId(user.getId())) {
+            throw new IllegalArgumentException(
+                    "Doctor profile already exists for this user"
+            );
+        }
+
+        DoctorProfile doctor =
+                new DoctorProfile();
+
+        doctor.setUser(user);
+
+        doctor.setSpecialization(
+                request.getSpecialization()
+        );
+
+        doctor.setExperienceYears(
+                request.getExperienceYears()
+        );
+
+        doctor.setConsultationFee(
+                request.getConsultationFee()
+        );
+
+        doctor.setPhotoUrl(
+                request.getPhotoUrl()
+        );
 
         return doctorRepository.save(doctor);
     }
 
-    public List<Doctor> getAllDoctors() {
+    public List<DoctorProfile> getAllDoctors() {
 
         return doctorRepository.findAll();
     }
 
-    public Doctor getDoctorById(Long id) {
+    public DoctorProfile getDoctorById(Long id) {
 
         return findDoctorById(id);
     }
 
-    public Doctor updateDoctor(
+    public DoctorProfile updateDoctor(
             Long id,
-            Doctor doctorDetails) {
+            DoctorProfileRequest request) {
 
-        Doctor existingDoctor = findDoctorById(id);
+        DoctorProfile doctor =
+                findDoctorById(id);
 
-        existingDoctor.setName(
-                doctorDetails.getName()
+        doctor.setSpecialization(
+                request.getSpecialization()
         );
 
-        existingDoctor.setSpecialization(
-                doctorDetails.getSpecialization()
+        doctor.setExperienceYears(
+                request.getExperienceYears()
         );
 
-        existingDoctor.setExperienceYears(
-                doctorDetails.getExperienceYears()
+        doctor.setConsultationFee(
+                request.getConsultationFee()
         );
 
-        existingDoctor.setConsultationFee(
-                doctorDetails.getConsultationFee()
+        doctor.setPhotoUrl(
+                request.getPhotoUrl()
         );
 
-        existingDoctor.setPhotoUrl(
-                doctorDetails.getPhotoUrl()
-        );
-
-        return doctorRepository.save(existingDoctor);
+        return doctorRepository.save(doctor);
     }
 
     public void deleteDoctor(Long id) {
 
-        Doctor doctor = findDoctorById(id);
+        DoctorProfile doctor =
+                findDoctorById(id);
 
         doctorRepository.delete(doctor);
     }
 
-    /*
-     * Common method used whenever we need to find a doctor.
-     * If the doctor does not exist, it throws an exception.
-     */
-    private Doctor findDoctorById(Long id) {
+    private DoctorProfile findDoctorById(
+            Long id) {
 
         return doctorRepository
                 .findById(id)
                 .orElseThrow(() ->
                         new DoctorNotFoundException(
                                 "Doctor not found with id: " + id
+                        )
+                );
+    }
+
+    private User findUserById(Long id) {
+
+        return userRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + id
                         )
                 );
     }

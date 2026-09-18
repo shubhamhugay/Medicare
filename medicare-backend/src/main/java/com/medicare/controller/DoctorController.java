@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.medicare.entity.Doctor;
+import com.medicare.dto.DoctorProfileRequest;
+import com.medicare.entity.DoctorProfile;
 import com.medicare.service.DoctorService;
 
 import jakarta.validation.Valid;
@@ -31,11 +32,14 @@ public class DoctorController {
     }
 
     @PostMapping
-    public ResponseEntity<Doctor> createDoctor(
-            @Valid @RequestBody Doctor doctor) {
+    public ResponseEntity<DoctorProfile>
+    createDoctor(
+            @Valid
+            @RequestBody
+            DoctorProfileRequest request) {
 
-        Doctor savedDoctor =
-                doctorService.createDoctor(doctor);
+        DoctorProfile savedDoctor =
+                doctorService.createDoctor(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -43,41 +47,43 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Doctor>>
+    public ResponseEntity<List<DoctorProfile>>
     getAllDoctors() {
 
-        List<Doctor> doctors =
-                doctorService.getAllDoctors();
-
-        return ResponseEntity.ok(doctors);
+        return ResponseEntity.ok(
+                doctorService.getAllDoctors()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Doctor> getDoctorById(
+    public ResponseEntity<DoctorProfile>
+    getDoctorById(
             @PathVariable Long id) {
 
-        Doctor doctor =
-                doctorService.getDoctorById(id);
-
-        return ResponseEntity.ok(doctor);
+        return ResponseEntity.ok(
+                doctorService.getDoctorById(id)
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Doctor> updateDoctor(
+    public ResponseEntity<DoctorProfile>
+    updateDoctor(
             @PathVariable Long id,
-            @Valid @RequestBody Doctor doctor) {
+            @Valid
+            @RequestBody
+            DoctorProfileRequest request) {
 
-        Doctor updatedDoctor =
+        return ResponseEntity.ok(
                 doctorService.updateDoctor(
                         id,
-                        doctor
-                );
-
-        return ResponseEntity.ok(updatedDoctor);
+                        request
+                )
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctor(
+    public ResponseEntity<Void>
+    deleteDoctor(
             @PathVariable Long id) {
 
         doctorService.deleteDoctor(id);
