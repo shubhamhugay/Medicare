@@ -2,18 +2,21 @@ package com.medicare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.medicare.security.CustomUserDetailsService;
+import com.medicare.security.JwtAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -53,17 +56,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            AuthenticationProvider authenticationProvider)
+            AuthenticationProvider authenticationProvider,
+            JwtAuthenticationFilter jwtAuthenticationFilter)
             throws Exception {
 
         http
 
-                /*
-                 * For this REST/Postman learning phase,
-                 * requests are authenticated with HTTP Basic.
-                 */
                 .csrf(csrf ->
                         csrf.disable()
+                )
+
+                /*
+                 * JWT authentication is stateless.
+                 * Spring Security should not create
+                 * an authentication session.
+                 */
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
                 .authenticationProvider(
@@ -73,32 +84,41 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
 
-                                // Health check is public
                                 .requestMatchers(
                                         "/api/health"
                                 )
                                 .permitAll()
 
-                                /*
-                                 * Temporarily public so we can
-                                 * create test users.
-                                 *
-                                 * Phase 9 will move registration
-                                 * into /api/auth/register.
-                                 */
                                 .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/api/users"
+                                        "/api/auth/register",
+                                        "/api/auth/login"
                                 )
                                 .permitAll()
 
-                                // Everything else requires login
                                 .anyRequest()
                                 .authenticated()
                 )
 
-                .httpBasic(
-                        Customizer.withDefaults()
+                /*
+                 * Return 401 when authentication
+                 * is missing or invalid.
+                 */
+                .exceptionHandling(exception ->
+                        exception
+                                .authenticationEntryPoint(
+                                        new HttpStatusEntryPoint(
+                                                HttpStatus.UNAUTHORIZED
+                                        )
+                                )
+                )
+
+                /*
+                 * JWT must be checked before
+                 * username/password authentication filter.
+                 */
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();

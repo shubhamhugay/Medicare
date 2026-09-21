@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -146,5 +147,44 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
+    @ExceptionHandler(
+            EmailAlreadyExistsException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleEmailAlreadyExists(
+            EmailAlreadyExistsException exception,
+            HttpServletRequest request) {
 
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
+    @ExceptionHandler(
+            BadCredentialsException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleBadCredentials(
+            BadCredentialsException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "Invalid email or password",
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorResponse);
+    }
 }
