@@ -3,6 +3,7 @@ package com.medicare.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.medicare.dto.DoctorPageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,8 +50,9 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DoctorResponse>>
+    public ResponseEntity<DoctorPageResponse>
     searchDoctors(
+
             @RequestParam(required = false)
             String specialization,
 
@@ -58,16 +60,34 @@ public class DoctorController {
             BigDecimal maxFee,
 
             @RequestParam(required = false)
-            String name) {
+            String name,
 
-        List<DoctorResponse> doctors =
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "6")
+            int size,
+
+            @RequestParam(
+                    defaultValue = "consultationFee"
+            )
+            String sortBy,
+
+            @RequestParam(defaultValue = "asc")
+            String direction) {
+
+        DoctorPageResponse response =
                 doctorService.searchDoctors(
                         specialization,
                         maxFee,
-                        name
+                        name,
+                        page,
+                        size,
+                        sortBy,
+                        direction
                 );
 
-        return ResponseEntity.ok(doctors);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

@@ -4,7 +4,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.medicare.dto.DoctorPageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
 
 import com.medicare.dto.DoctorProfileRequest;
 import com.medicare.dto.DoctorResponse;
@@ -77,17 +82,25 @@ public class DoctorService {
 
         return mapToDoctorResponse(savedDoctor);
     }
-
-    public List<DoctorResponse> searchDoctors(
+    public DoctorPageResponse searchDoctors(
             String specialization,
             BigDecimal maxFee,
-            String name) {
+            String name,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
 
         specialization =
                 normalizeText(specialization);
 
         name =
                 normalizeText(name);
+
+        validatePagination(
+                page,
+                size
+        );
 
         if (maxFee != null
                 && maxFee.compareTo(BigDecimal.ZERO) <= 0) {
@@ -97,26 +110,119 @@ public class DoctorService {
             );
         }
 
-        List<DoctorProfile> doctors =
+        String sortField =
+                resolveSortField(sortBy);
+
+        Sort.Direction sortDirection =
+                resolveSortDirection(direction);
+
+        Sort sort =
+                Sort.by(
+                        sortDirection,
+                        sortField
+                );
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        sort
+                );
+
+        Page<DoctorProfile> doctorPage =
                 doctorRepository.searchDoctors(
                         specialization,
                         maxFee,
-                        name
+                        name,
+                        pageable
                 );
 
-        List<DoctorResponse> responses =
+        List<DoctorResponse> doctorResponses =
                 new ArrayList<>();
 
-        for (DoctorProfile doctor : doctors) {
+        for (DoctorProfile doctor
+                : doctorPage.getContent()) {
 
-            responses.add(
+            doctorResponses.add(
                     mapToDoctorResponse(doctor)
             );
         }
 
-        return responses;
+        return new DoctorPageResponse(
+                doctorResponses,
+                doctorPage.getNumber(),
+                doctorPage.getSize(),
+                doctorPage.getTotalElements(),
+                doctorPage.getTotalPages(),
+                doctorPage.isLast()
+        );
     }
+    private void validatePagination(
+            int page,
+            int size) {
 
+        if (page < 0) {
+
+            throw new IllegalArgumentException(
+                    "Page number cannot be negative"
+            );
+        }
+
+        if (size < 1 || size > 50) {
+
+            throw new IllegalArgumentException(
+                    "Page size must be between 1 and 50"
+            );
+        }
+    }
+    private String resolveSortField(
+            String sortBy) {
+
+        if (sortBy == null
+                || sortBy.isBlank()) {
+
+            return "consultationFee";
+        }
+
+        return switch (sortBy) {
+
+            case "name" ->
+                    "user.name";
+
+            case "specialization" ->
+                    "specialization";
+
+            case "experienceYears" ->
+                    "experienceYears";
+
+            case "consultationFee" ->
+                    "consultationFee";
+
+            default ->
+                    throw new IllegalArgumentException(
+                            "Invalid sort field"
+                    );
+        };
+    }
+    private Sort.Direction resolveSortDirection(
+            String direction) {
+
+        if (direction == null
+                || direction.isBlank()
+                || direction.equalsIgnoreCase("asc")) {
+
+            return Sort.Direction.ASC;
+        }
+
+        if (direction.equalsIgnoreCase("desc")) {
+
+            return Sort.Direction.DESC;
+        }
+
+        throw new IllegalArgumentException(
+                "Sort direction must be asc or desc"
+        );
+    }
     public DoctorResponse getDoctorById(
             Long id) {
 

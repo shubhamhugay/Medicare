@@ -1,7 +1,9 @@
 package com.medicare.repository;
 
 import java.math.BigDecimal;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +30,7 @@ public interface DoctorProfileRepository
                     OR LOWER(u.name)
                     LIKE CONCAT(CONCAT('%', LOWER(:name)), '%'))
             """)
-    List<DoctorProfile> searchDoctors(
+    Page<DoctorProfile> searchDoctors(
             @Param("specialization")
             String specialization,
 
@@ -36,6 +38,8 @@ public interface DoctorProfileRepository
             BigDecimal maxFee,
 
             @Param("name")
-            String name
+            String name,
+
+            Pageable pageable
     );
 }
