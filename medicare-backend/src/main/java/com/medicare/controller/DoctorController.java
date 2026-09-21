@@ -1,5 +1,6 @@
 package com.medicare.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -11,10 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.medicare.dto.DoctorProfileRequest;
-import com.medicare.entity.DoctorProfile;
+import com.medicare.dto.DoctorResponse;
 import com.medicare.service.DoctorService;
 
 import jakarta.validation.Valid;
@@ -32,13 +34,13 @@ public class DoctorController {
     }
 
     @PostMapping
-    public ResponseEntity<DoctorProfile>
+    public ResponseEntity<DoctorResponse>
     createDoctor(
             @Valid
             @RequestBody
             DoctorProfileRequest request) {
 
-        DoctorProfile savedDoctor =
+        DoctorResponse savedDoctor =
                 doctorService.createDoctor(request);
 
         return ResponseEntity
@@ -47,16 +49,29 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DoctorProfile>>
-    getAllDoctors() {
+    public ResponseEntity<List<DoctorResponse>>
+    searchDoctors(
+            @RequestParam(required = false)
+            String specialization,
 
-        return ResponseEntity.ok(
-                doctorService.getAllDoctors()
-        );
+            @RequestParam(required = false)
+            BigDecimal maxFee,
+
+            @RequestParam(required = false)
+            String name) {
+
+        List<DoctorResponse> doctors =
+                doctorService.searchDoctors(
+                        specialization,
+                        maxFee,
+                        name
+                );
+
+        return ResponseEntity.ok(doctors);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DoctorProfile>
+    public ResponseEntity<DoctorResponse>
     getDoctorById(
             @PathVariable Long id) {
 
@@ -66,7 +81,7 @@ public class DoctorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DoctorProfile>
+    public ResponseEntity<DoctorResponse>
     updateDoctor(
             @PathVariable Long id,
             @Valid

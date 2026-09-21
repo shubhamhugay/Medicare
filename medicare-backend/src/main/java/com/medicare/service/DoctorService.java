@@ -1,10 +1,13 @@
 package com.medicare.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.medicare.dto.DoctorProfileRequest;
+import com.medicare.dto.DoctorResponse;
 import com.medicare.entity.DoctorProfile;
 import com.medicare.entity.Role;
 import com.medicare.entity.User;
@@ -27,7 +30,7 @@ public class DoctorService {
         this.userRepository = userRepository;
     }
 
-    public DoctorProfile createDoctor(
+    public DoctorResponse createDoctor(
             DoctorProfileRequest request) {
 
         User user = findUserById(
@@ -35,12 +38,14 @@ public class DoctorService {
         );
 
         if (user.getRole() != Role.DOCTOR) {
+
             throw new IllegalArgumentException(
                     "Doctor profile can only be created for a DOCTOR user"
             );
         }
 
         if (doctorRepository.existsByUserId(user.getId())) {
+
             throw new IllegalArgumentException(
                     "Doctor profile already exists for this user"
             );
@@ -67,20 +72,61 @@ public class DoctorService {
                 request.getPhotoUrl()
         );
 
-        return doctorRepository.save(doctor);
+        DoctorProfile savedDoctor =
+                doctorRepository.save(doctor);
+
+        return mapToDoctorResponse(savedDoctor);
     }
 
-    public List<DoctorProfile> getAllDoctors() {
+    public List<DoctorResponse> searchDoctors(
+            String specialization,
+            BigDecimal maxFee,
+            String name) {
 
-        return doctorRepository.findAll();
+        specialization =
+                normalizeText(specialization);
+
+        name =
+                normalizeText(name);
+
+        if (maxFee != null
+                && maxFee.compareTo(BigDecimal.ZERO) <= 0) {
+
+            throw new IllegalArgumentException(
+                    "Maximum consultation fee must be greater than zero"
+            );
+        }
+
+        List<DoctorProfile> doctors =
+                doctorRepository.searchDoctors(
+                        specialization,
+                        maxFee,
+                        name
+                );
+
+        List<DoctorResponse> responses =
+                new ArrayList<>();
+
+        for (DoctorProfile doctor : doctors) {
+
+            responses.add(
+                    mapToDoctorResponse(doctor)
+            );
+        }
+
+        return responses;
     }
 
-    public DoctorProfile getDoctorById(Long id) {
+    public DoctorResponse getDoctorById(
+            Long id) {
 
-        return findDoctorById(id);
+        DoctorProfile doctor =
+                findDoctorById(id);
+
+        return mapToDoctorResponse(doctor);
     }
 
-    public DoctorProfile updateDoctor(
+    public DoctorResponse updateDoctor(
             Long id,
             DoctorProfileRequest request) {
 
@@ -103,7 +149,10 @@ public class DoctorService {
                 request.getPhotoUrl()
         );
 
-        return doctorRepository.save(doctor);
+        DoctorProfile updatedDoctor =
+                doctorRepository.save(doctor);
+
+        return mapToDoctorResponse(updatedDoctor);
     }
 
     public void deleteDoctor(Long id) {
@@ -135,5 +184,35 @@ public class DoctorService {
                                 "User not found with id: " + id
                         )
                 );
+    }
+
+    /*
+     * Converts DoctorProfile entity into the simpler
+     * response sent to the frontend.
+     */
+    private DoctorResponse mapToDoctorResponse(
+            DoctorProfile doctor) {
+
+        return new DoctorResponse(
+                doctor.getId(),
+                doctor.getUser().getName(),
+                doctor.getSpecialization(),
+                doctor.getExperienceYears(),
+                doctor.getConsultationFee(),
+                doctor.getPhotoUrl()
+        );
+    }
+
+    /*
+     * Empty request parameters should behave
+     * the same as parameters that were not supplied.
+     */
+    private String normalizeText(String value) {
+
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }
