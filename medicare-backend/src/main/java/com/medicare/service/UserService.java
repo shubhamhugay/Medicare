@@ -1,9 +1,13 @@
 package com.medicare.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.medicare.dto.UserRequest;
+import com.medicare.dto.UserResponse;
 import com.medicare.entity.User;
 import com.medicare.exception.UserNotFoundException;
 import com.medicare.repository.UserRepository;
@@ -12,31 +16,91 @@ import com.medicare.repository.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(User user) {
+    public UserResponse createUser(
+            UserRequest request) {
 
-        return userRepository.save(user);
+        if (userRepository.existsByEmail(
+                request.getEmail())) {
+
+            throw new IllegalArgumentException(
+                    "Email is already registered"
+            );
+        }
+
+        User user = new User();
+
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+
+        /*
+         * Never store a plain-text password.
+         * BCrypt converts it into a secure hash.
+         */
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
+        );
+
+        user.setRole(request.getRole());
+
+        User savedUser =
+                userRepository.save(user);
+
+        return mapToUserResponse(savedUser);
     }
 
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
 
-        return userRepository.findAll();
+        List<User> users =
+                userRepository.findAll();
+
+        List<UserResponse> responses =
+                new ArrayList<>();
+
+        for (User user : users) {
+
+            responses.add(
+                    mapToUserResponse(user)
+            );
+        }
+
+        return responses;
     }
 
-    public User getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
 
-        return userRepository
+        User user = userRepository
                 .findById(id)
                 .orElseThrow(() ->
                         new UserNotFoundException(
                                 "User not found with id: " + id
                         )
                 );
+
+        return mapToUserResponse(user);
+    }
+
+    private UserResponse mapToUserResponse(
+            User user) {
+
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole()
+        );
     }
 }

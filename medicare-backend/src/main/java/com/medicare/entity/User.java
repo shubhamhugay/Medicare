@@ -51,21 +51,26 @@ public class User {
     @JsonIgnore
     private List<Appointment> appointments =
             new ArrayList<>();
+    @NotBlank(message = "Password is required")
+    @Size(
+            min = 8,
+            max = 100,
+            message = "Password must be between 8 and 100 characters"
+    )
+    @Column(nullable = false)
+    private String password;
 
-
-    public User() {
-    }
-
-    public User(
-            String name,
-            String email,
-            String phone,
-            Role role) {
-
+    public User(Long id, String name, String email, String phone, Role role, List<Appointment> appointments, String password) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.role = role;
+        this.appointments = appointments;
+        this.password = password;
+    }
+
+    public User() {
     }
 
     public Long getId() {
@@ -107,6 +112,7 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
     public List<Appointment> getAppointments() {
         return appointments;
     }
@@ -115,4 +121,11 @@ public class User {
         this.appointments = appointments;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
