@@ -2,14 +2,19 @@ package com.medicare.controller;
 
 import java.util.List;
 
-import com.medicare.dto.AppointmentResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.medicare.dto.AppointmentRequest;
-import com.medicare.entity.Appointment;
+import com.medicare.dto.AppointmentResponse;
 import com.medicare.service.AppointmentService;
 
 import jakarta.validation.Valid;
@@ -27,6 +32,11 @@ public class AppointmentController {
                 appointmentService;
     }
 
+
+    // -------------------------------------------------
+    // PATIENT - BOOK APPOINTMENT
+    // -------------------------------------------------
+
     @PostMapping
     public ResponseEntity<AppointmentResponse>
     createAppointment(
@@ -34,7 +44,6 @@ public class AppointmentController {
             @RequestBody
             AppointmentRequest request,
             Authentication authentication) {
-
 
         AppointmentResponse response =
                 appointmentService
@@ -47,52 +56,11 @@ public class AppointmentController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
-    @GetMapping
-    public ResponseEntity<List<Appointment>>
-    getAllAppointments() {
 
-        return ResponseEntity.ok(
-                appointmentService
-                        .getAllAppointments()
-        );
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Appointment>
-    getAppointmentById(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                appointmentService
-                        .getAppointmentById(id)
-        );
-    }
-
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Appointment>>
-    getAppointmentsByPatient(
-            @PathVariable Long patientId) {
-
-        return ResponseEntity.ok(
-                appointmentService
-                        .getAppointmentsByPatient(
-                                patientId
-                        )
-        );
-    }
-
-    @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<Appointment>>
-    getAppointmentsByDoctor(
-            @PathVariable Long doctorId) {
-
-        return ResponseEntity.ok(
-                appointmentService
-                        .getAppointmentsByDoctor(
-                                doctorId
-                        )
-        );
-    }
+    // -------------------------------------------------
+    // PATIENT - VIEW OWN APPOINTMENTS
+    // -------------------------------------------------
 
     @GetMapping("/my")
     public ResponseEntity<List<AppointmentResponse>>
@@ -106,6 +74,30 @@ public class AppointmentController {
                         )
         );
     }
+
+
+    // -------------------------------------------------
+    // DOCTOR - VIEW OWN APPOINTMENTS
+    // -------------------------------------------------
+
+    @GetMapping("/doctor/me")
+    public ResponseEntity<List<AppointmentResponse>>
+    getMyDoctorAppointments(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                appointmentService
+                        .getMyDoctorAppointments(
+                                authentication.getName()
+                        )
+        );
+    }
+
+
+    // -------------------------------------------------
+    // PATIENT / DOCTOR - VIEW APPOINTMENT DETAILS
+    // -------------------------------------------------
+
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse>
     getAppointmentById(
@@ -120,6 +112,12 @@ public class AppointmentController {
                         )
         );
     }
+
+
+    // -------------------------------------------------
+    // PATIENT - CANCEL OWN APPOINTMENT
+    // -------------------------------------------------
+
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<AppointmentResponse>
     cancelAppointment(
@@ -134,6 +132,12 @@ public class AppointmentController {
                         )
         );
     }
+
+
+    // -------------------------------------------------
+    // DOCTOR - COMPLETE ASSIGNED APPOINTMENT
+    // -------------------------------------------------
+
     @PatchMapping("/{id}/complete")
     public ResponseEntity<AppointmentResponse>
     completeAppointment(
@@ -148,6 +152,4 @@ public class AppointmentController {
                         )
         );
     }
-
-
 }

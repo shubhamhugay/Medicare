@@ -1,9 +1,14 @@
 package com.medicare.controller;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import com.medicare.dto.DoctorPageResponse;
+import com.medicare.dto.DoctorProfileRequest;
+import com.medicare.dto.DoctorResponse;
+import com.medicare.service.DoctorService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,12 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.medicare.dto.DoctorProfileRequest;
-import com.medicare.dto.DoctorResponse;
-import com.medicare.service.DoctorService;
-
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/doctors")
 public class DoctorController {
@@ -35,20 +34,10 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
-    @PostMapping
-    public ResponseEntity<DoctorResponse>
-    createDoctor(
-            @Valid
-            @RequestBody
-            DoctorProfileRequest request) {
 
-        DoctorResponse savedDoctor =
-                doctorService.createDoctor(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(savedDoctor);
-    }
+    // -------------------------------------------------
+    // SEARCH / FILTER / PAGINATION
+    // -------------------------------------------------
 
     @GetMapping
     public ResponseEntity<DoctorPageResponse>
@@ -91,6 +80,11 @@ public class DoctorController {
         return ResponseEntity.ok(response);
     }
 
+
+    // -------------------------------------------------
+    // VIEW DOCTOR DETAILS
+    // -------------------------------------------------
+
     @GetMapping("/{id}")
     public ResponseEntity<DoctorResponse>
     getDoctorById(
@@ -101,34 +95,10 @@ public class DoctorController {
         );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<DoctorResponse>
-    updateDoctor(
-            @PathVariable Long id,
-            @Valid
-            @RequestBody
-            DoctorProfileRequest request) {
 
-        return ResponseEntity.ok(
-                doctorService.updateDoctor(
-                        id,
-                        request
-                )
-        );
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void>
-    deleteDoctor(
-            @PathVariable Long id) {
-
-        doctorService.deleteDoctor(id);
-
-        return ResponseEntity
-                .noContent()
-                .build();
-    }
-
+    // -------------------------------------------------
+    // DOCTOR - CREATE OWN PROFILE
+    // -------------------------------------------------
 
     @PostMapping("/profile")
     public ResponseEntity<DoctorResponse>
@@ -148,6 +118,12 @@ public class DoctorController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+
+    // -------------------------------------------------
+    // DOCTOR - VIEW OWN PROFILE
+    // -------------------------------------------------
+
     @GetMapping("/profile/me")
     public ResponseEntity<DoctorResponse>
     getMyProfile(
@@ -159,6 +135,11 @@ public class DoctorController {
                 )
         );
     }
+
+
+    // -------------------------------------------------
+    // DOCTOR - UPDATE OWN PROFILE
+    // -------------------------------------------------
 
     @PutMapping("/profile/me")
     public ResponseEntity<DoctorResponse>
@@ -176,6 +157,11 @@ public class DoctorController {
         );
     }
 
+
+    // -------------------------------------------------
+    // DOCTOR - DELETE OWN PROFILE
+    // -------------------------------------------------
+
     @DeleteMapping("/profile/me")
     public ResponseEntity<Void>
     deleteMyProfile(
@@ -189,7 +175,4 @@ public class DoctorController {
                 .noContent()
                 .build();
     }
-
-
-
 }

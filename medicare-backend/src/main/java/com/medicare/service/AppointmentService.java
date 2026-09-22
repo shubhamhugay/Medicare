@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.medicare.dto.AppointmentResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -114,10 +115,7 @@ public class AppointmentService {
                 savedAppointment
         );
     }
-    public List<Appointment> getAllAppointments() {
 
-        return appointmentRepository.findAll();
-    }
     @PreAuthorize("hasRole('PATIENT')")
     public List<AppointmentResponse>
     getMyAppointments(
@@ -237,21 +235,9 @@ public class AppointmentService {
 
 
 
-    public List<Appointment>
-    getAppointmentsByPatient(
-            Long patientId) {
 
-        return appointmentRepository
-                .findByPatientId(patientId);
-    }
 
-    public List<Appointment>
-    getAppointmentsByDoctor(
-            Long doctorId) {
 
-        return appointmentRepository
-                .findByDoctorId(doctorId);
-    }
 
 
     @PreAuthorize("hasRole('DOCTOR')")
@@ -355,4 +341,83 @@ public class AppointmentService {
                 appointment.getCreatedAt()
         );
     }
+
+    private User findUserByEmail(
+            String email) {
+
+        return userRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found"
+                        )
+                );
+    }
+
+
+    private DoctorProfile findDoctorByUserId(
+            Long userId) {
+
+        return doctorRepository
+                .findByUserId(userId)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor profile not found"
+                        )
+                );
+    }
+
+
+    private Appointment findAppointmentById(
+            Long appointmentId) {
+
+        return appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() ->
+                        new AppointmentNotFoundException(
+                                "Appointment not found with id: "
+                                        + appointmentId
+                        )
+                );
+    }
+
+
+    private void verifyAppointmentAccess(
+            Appointment appointment,
+            User user) {
+
+        if (user.getRole() == Role.PATIENT) {
+
+            if (!appointment
+                    .getPatient()
+                    .getId()
+                    .equals(user.getId())) {
+
+                throw new AccessDeniedException(
+                        "You cannot access this appointment"
+                );
+            }
+
+            return;
+        }
+
+        if (user.getRole() == Role.DOCTOR) {
+
+            DoctorProfile doctor =
+                    findDoctorByUserId(
+                            user.getId()
+                    );
+
+            if (!appointment
+                    .getDoctor()
+                    .getId()
+                    .equals(doctor.getId())) {
+
+                throw new AccessDeniedException(
+                        "You cannot access this appointment"
+                );
+            }
+        }
+    }
+
 }
