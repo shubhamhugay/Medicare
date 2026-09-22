@@ -92,6 +92,21 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    public UserResponse getCurrentUser(
+            String email) {
+
+        User user =
+                userRepository
+                        .findByEmailIgnoreCase(email)
+                        .orElseThrow(() ->
+                                new UserNotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        return mapToUserResponse(user);
+    }
+
     private UserResponse mapToUserResponse(
             User user) {
 

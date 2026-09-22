@@ -1,7 +1,10 @@
 package com.medicare.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.medicare.dto.AppointmentResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.medicare.dto.AppointmentRequest;
@@ -41,28 +44,19 @@ public class AppointmentService {
                 doctorRepository;
     }
 
-    public Appointment createAppointment(
-            AppointmentRequest request) {
+    @PreAuthorize("hasRole('PATIENT')")
+    public AppointmentResponse createAppointment(
+            AppointmentRequest request,
+            String email) {
 
-        User patient = userRepository
-                .findById(request.getPatientId())
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "Patient not found with id: "
-                                        + request.getPatientId()
-                        )
-                );
-
-        if (patient.getRole() != Role.PATIENT) {
-
-            throw new IllegalArgumentException(
-                    "Appointment can only be booked for a PATIENT user"
-            );
-        }
+        User patient =
+                findUserByEmail(email);
 
         DoctorProfile doctor =
                 doctorRepository
-                        .findById(request.getDoctorId())
+                        .findById(
+                                request.getDoctorId()
+                        )
                         .orElseThrow(() ->
                                 new DoctorNotFoundException(
                                         "Doctor not found with id: "
@@ -70,15 +64,16 @@ public class AppointmentService {
                                 )
                         );
 
-        boolean slotAlreadyBooked =
+        boolean booked =
                 appointmentRepository
-                        .existsByDoctorIdAndAppointmentDateAndTimeSlot(
+                        .existsByDoctorIdAndAppointmentDateAndTimeSlotAndAppointmentStatusNot(
                                 doctor.getId(),
                                 request.getAppointmentDate(),
-                                request.getTimeSlot()
+                                request.getTimeSlot(),
+                                AppointmentStatus.CANCELLED
                         );
 
-        if (slotAlreadyBooked) {
+        if (booked) {
 
             throw new AppointmentConflictException(
                     "Selected appointment slot is already booked"
@@ -99,10 +94,6 @@ public class AppointmentService {
                 request.getTimeSlot()
         );
 
-        /*
-         * Consultation fee comes from the doctor's profile.
-         * We do not trust the frontend to send the fee.
-         */
         appointment.setConsultationFee(
                 doctor.getConsultationFee()
         );
@@ -115,26 +106,136 @@ public class AppointmentService {
                 PaymentStatus.UNPAID
         );
 
-        return appointmentRepository
-                .save(appointment);
-    }
+        Appointment savedAppointment =
+                appointmentRepository
+                        .save(appointment);
 
+        return mapToAppointmentResponse(
+                savedAppointment
+        );
+    }
     public List<Appointment> getAllAppointments() {
 
         return appointmentRepository.findAll();
     }
+    @PreAuthorize("hasRole('PATIENT')")
+    public List<AppointmentResponse>
+    getMyAppointments(
+            String email) {
 
-    public Appointment getAppointmentById(
-            Long id) {
+        User patient =
+                findUserByEmail(email);
 
-        return appointmentRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new AppointmentNotFoundException(
-                                "Appointment not found with id: " + id
-                        )
-                );
+        List<Appointment> appointments =
+                appointmentRepository
+                        .findByPatientId(
+                                patient.getId()
+                        );
+
+        return mapAppointmentList(
+                appointments
+        );
     }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public List<AppointmentResponse>
+    getMyDoctorAppointments(
+            String email) {
+
+        User user =
+                findUserByEmail(email);
+
+        DoctorProfile doctor =
+                findDoctorByUserId(
+                        user.getId()
+                );
+
+        List<Appointment> appointments =
+                appointmentRepository
+                        .findByDoctorId(
+                                doctor.getId()
+                        );
+
+        return mapAppointmentList(
+                appointments
+        );
+    }
+
+    @PreAuthorize(
+            "hasAnyRole('PATIENT', 'DOCTOR')"
+    )
+    public AppointmentResponse
+    getAppointmentById(
+            Long appointmentId,
+            String email) {
+
+        Appointment appointment =
+                findAppointmentById(
+                        appointmentId
+                );
+
+        User user =
+                findUserByEmail(email);
+
+        verifyAppointmentAccess(
+                appointment,
+                user
+        );
+
+        return mapToAppointmentResponse(
+                appointment
+        );
+    }
+    @PreAuthorize("hasRole('PATIENT')")
+    public AppointmentResponse cancelAppointment(
+            Long appointmentId,
+            String email) {
+
+        User patient =
+                findUserByEmail(email);
+
+        Appointment appointment =
+                findAppointmentById(
+                        appointmentId
+                );
+
+        if (!appointment
+                .getPatient()
+                .getId()
+                .equals(patient.getId())) {
+
+            throw new AccessDeniedException(
+                    "You cannot cancel this appointment"
+            );
+        }
+
+        if (appointment.getAppointmentStatus()
+                == AppointmentStatus.COMPLETED) {
+
+            throw new IllegalArgumentException(
+                    "Completed appointment cannot be cancelled"
+            );
+        }
+
+        if (appointment.getAppointmentStatus()
+                == AppointmentStatus.CANCELLED) {
+
+            throw new IllegalArgumentException(
+                    "Appointment is already cancelled"
+            );
+        }
+
+        appointment.setAppointmentStatus(
+                AppointmentStatus.CANCELLED
+        );
+
+        return mapToAppointmentResponse(
+                appointmentRepository
+                        .save(appointment)
+        );
+    }
+
+
 
     public List<Appointment>
     getAppointmentsByPatient(
@@ -150,5 +251,108 @@ public class AppointmentService {
 
         return appointmentRepository
                 .findByDoctorId(doctorId);
+    }
+
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public AppointmentResponse completeAppointment(
+            Long appointmentId,
+            String email) {
+
+        User user =
+                findUserByEmail(email);
+
+        DoctorProfile doctor =
+                findDoctorByUserId(
+                        user.getId()
+                );
+
+        Appointment appointment =
+                findAppointmentById(
+                        appointmentId
+                );
+
+        if (!appointment
+                .getDoctor()
+                .getId()
+                .equals(doctor.getId())) {
+
+            throw new AccessDeniedException(
+                    "You cannot complete this appointment"
+            );
+        }
+
+        if (appointment.getAppointmentStatus()
+                == AppointmentStatus.CANCELLED) {
+
+            throw new IllegalArgumentException(
+                    "Cancelled appointment cannot be completed"
+            );
+        }
+
+        appointment.setAppointmentStatus(
+                AppointmentStatus.COMPLETED
+        );
+
+        return mapToAppointmentResponse(
+                appointmentRepository
+                        .save(appointment)
+        );
+    }
+
+    private List<AppointmentResponse>
+    mapAppointmentList(
+            List<Appointment> appointments) {
+
+        List<AppointmentResponse> responses =
+                new ArrayList<>();
+
+        for (Appointment appointment
+                : appointments) {
+
+            responses.add(
+                    mapToAppointmentResponse(
+                            appointment
+                    )
+            );
+        }
+
+        return responses;
+    }
+    private AppointmentResponse
+    mapToAppointmentResponse(
+            Appointment appointment) {
+
+        return new AppointmentResponse(
+                appointment.getId(),
+
+                appointment
+                        .getPatient()
+                        .getId(),
+
+                appointment
+                        .getPatient()
+                        .getName(),
+
+                appointment
+                        .getDoctor()
+                        .getId(),
+
+                appointment
+                        .getDoctor()
+                        .getUser()
+                        .getName(),
+
+                appointment
+                        .getDoctor()
+                        .getSpecialization(),
+
+                appointment.getAppointmentDate(),
+                appointment.getTimeSlot(),
+                appointment.getConsultationFee(),
+                appointment.getAppointmentStatus(),
+                appointment.getPaymentStatus(),
+                appointment.getCreatedAt()
+        );
     }
 }

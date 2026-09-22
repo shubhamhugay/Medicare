@@ -9,9 +9,6 @@ import jakarta.validation.constraints.NotNull;
 
 public class AppointmentRequest {
 
-    @NotNull(message = "Patient id is required")
-    private Long patientId;
-
     @NotNull(message = "Doctor id is required")
     private Long doctorId;
 
@@ -23,14 +20,6 @@ public class AppointmentRequest {
 
     @NotNull(message = "Time slot is required")
     private TimeSlot timeSlot;
-
-    public Long getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(Long patientId) {
-        this.patientId = patientId;
-    }
 
     public Long getDoctorId() {
         return doctorId;
@@ -54,7 +43,9 @@ public class AppointmentRequest {
         return timeSlot;
     }
 
-    public void setTimeSlot(TimeSlot timeSlot) {
+    public void setTimeSlot(
+            TimeSlot timeSlot) {
+
         this.timeSlot = timeSlot;
     }
 }

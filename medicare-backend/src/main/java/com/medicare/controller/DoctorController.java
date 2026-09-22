@@ -6,6 +6,7 @@ import java.util.List;
 import com.medicare.dto.DoctorPageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -127,4 +128,68 @@ public class DoctorController {
                 .noContent()
                 .build();
     }
+
+
+    @PostMapping("/profile")
+    public ResponseEntity<DoctorResponse>
+    createMyProfile(
+            @Valid
+            @RequestBody
+            DoctorProfileRequest request,
+            Authentication authentication) {
+
+        DoctorResponse response =
+                doctorService.createMyProfile(
+                        request,
+                        authentication.getName()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+    @GetMapping("/profile/me")
+    public ResponseEntity<DoctorResponse>
+    getMyProfile(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                doctorService.getMyProfile(
+                        authentication.getName()
+                )
+        );
+    }
+
+    @PutMapping("/profile/me")
+    public ResponseEntity<DoctorResponse>
+    updateMyProfile(
+            @Valid
+            @RequestBody
+            DoctorProfileRequest request,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                doctorService.updateMyProfile(
+                        authentication.getName(),
+                        request
+                )
+        );
+    }
+
+    @DeleteMapping("/profile/me")
+    public ResponseEntity<Void>
+    deleteMyProfile(
+            Authentication authentication) {
+
+        doctorService.deleteMyProfile(
+                authentication.getName()
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+
+
 }

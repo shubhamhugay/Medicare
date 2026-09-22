@@ -2,14 +2,11 @@ package com.medicare.controller;
 
 import java.util.List;
 
+import com.medicare.dto.AppointmentResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import com.medicare.dto.AppointmentRequest;
 import com.medicare.entity.Appointment;
@@ -31,21 +28,25 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment>
+    public ResponseEntity<AppointmentResponse>
     createAppointment(
             @Valid
             @RequestBody
-            AppointmentRequest request) {
+            AppointmentRequest request,
+            Authentication authentication) {
 
-        Appointment appointment =
+
+        AppointmentResponse response =
                 appointmentService
-                        .createAppointment(request);
+                        .createAppointment(
+                                request,
+                                authentication.getName()
+                        );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(appointment);
+                .body(response);
     }
-
     @GetMapping
     public ResponseEntity<List<Appointment>>
     getAllAppointments() {
@@ -92,4 +93,61 @@ public class AppointmentController {
                         )
         );
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<AppointmentResponse>>
+    getMyAppointments(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                appointmentService
+                        .getMyAppointments(
+                                authentication.getName()
+                        )
+        );
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<AppointmentResponse>
+    getAppointmentById(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                appointmentService
+                        .getAppointmentById(
+                                id,
+                                authentication.getName()
+                        )
+        );
+    }
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<AppointmentResponse>
+    cancelAppointment(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                appointmentService
+                        .cancelAppointment(
+                                id,
+                                authentication.getName()
+                        )
+        );
+    }
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponse>
+    completeAppointment(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                appointmentService
+                        .completeAppointment(
+                                id,
+                                authentication.getName()
+                        )
+        );
+    }
+
+
 }

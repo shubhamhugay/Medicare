@@ -11,9 +11,6 @@ import jakarta.validation.constraints.Size;
 
 public class DoctorProfileRequest {
 
-    @NotNull(message = "User id is required")
-    private Long userId;
-
     @NotBlank(message = "Specialization is required")
     @Size(max = 100)
     private String specialization;
@@ -29,14 +26,6 @@ public class DoctorProfileRequest {
 
     @Size(max = 500)
     private String photoUrl;
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     public String getSpecialization() {
         return specialization;
@@ -72,7 +61,9 @@ public class DoctorProfileRequest {
         return photoUrl;
     }
 
-    public void setPhotoUrl(String photoUrl) {
+    public void setPhotoUrl(
+            String photoUrl) {
+
         this.photoUrl = photoUrl;
     }
 }

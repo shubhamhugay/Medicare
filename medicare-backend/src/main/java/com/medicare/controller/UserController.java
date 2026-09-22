@@ -90,4 +90,16 @@ public class UserController {
                 userService.getUserById(id)
         );
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse>
+    getCurrentUser(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                userService.getCurrentUser(
+                        authentication.getName()
+                )
+        );
+    }
 }

@@ -1,6 +1,7 @@
 package com.medicare.repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,11 @@ public interface DoctorProfileRepository
         extends JpaRepository<DoctorProfile, Long> {
 
     boolean existsByUserId(Long userId);
+
+    Optional<DoctorProfile> findByUserId(
+            Long userId
+    );
+
 
     @Query("""
             SELECT d

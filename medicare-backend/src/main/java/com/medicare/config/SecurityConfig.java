@@ -1,12 +1,16 @@
 package com.medicare.config;
 
+import com.medicare.security.CustomAccessDeniedHandler;
+import com.medicare.security.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,7 +23,16 @@ import com.medicare.security.CustomUserDetailsService;
 import com.medicare.security.JwtAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    CustomAccessDeniedHandler customAccessDeniedHandler;
+    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    public SecurityConfig(CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -84,31 +97,101 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
 
+                                // Public APIs
                                 .requestMatchers(
-                                        "/api/health"
-                                )
-                                .permitAll()
-
-                                .requestMatchers(
+                                        "/api/health",
                                         "/api/auth/register",
                                         "/api/auth/login"
                                 )
                                 .permitAll()
 
-                                .anyRequest()
+                                // Current user's profile
+                                .requestMatchers(
+                                        "/api/users/me"
+                                )
                                 .authenticated()
-                )
 
+                                // Doctor can manage only own profile
+                                .requestMatchers(
+                                        "/api/doctors/profile",
+                                        "/api/doctors/profile/**"
+                                )
+                                .hasRole("DOCTOR")
+
+                                // Doctor search/listing
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/doctors/**"
+                                )
+                                .hasAnyRole(
+                                        "PATIENT",
+                                        "DOCTOR"
+                                )
+
+                                // Patient books appointments
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/appointments"
+                                )
+                                .hasRole("PATIENT")
+
+                                // Patient appointment history
+                                .requestMatchers(
+                                        "/api/appointments/my"
+                                )
+                                .hasRole("PATIENT")
+
+                                // Doctor schedule
+                                .requestMatchers(
+                                        "/api/appointments/doctor/**"
+                                )
+                                .hasRole("DOCTOR")
+
+                                // Patient cancellation
+                                .requestMatchers(
+                                        HttpMethod.PATCH,
+                                        "/api/appointments/*/cancel"
+                                )
+                                .hasRole("PATIENT")
+
+                                // Doctor completion
+                                .requestMatchers(
+                                        HttpMethod.PATCH,
+                                        "/api/appointments/*/complete"
+                                )
+                                .hasRole("DOCTOR")
+
+                                // Appointment details
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/appointments/*"
+                                )
+                                .hasAnyRole(
+                                        "PATIENT",
+                                        "DOCTOR"
+                                )
+
+                                /*
+                                 * Safer default:
+                                 * anything we forgot to configure
+                                 * is denied.
+                                 */
+                                .anyRequest()
+                                .denyAll()
+                )
                 /*
                  * Return 401 when authentication
                  * is missing or invalid.
                  */
                 .exceptionHandling(exception ->
                         exception
+
                                 .authenticationEntryPoint(
-                                        new HttpStatusEntryPoint(
-                                                HttpStatus.UNAUTHORIZED
-                                        )
+                                        customAuthenticationEntryPoint
+                                )
+
+                                .accessDeniedHandler(
+                                        customAccessDeniedHandler
                                 )
                 )
 

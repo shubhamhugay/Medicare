@@ -3,6 +3,7 @@ package com.medicare.repository;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.medicare.entity.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.medicare.entity.Appointment;
@@ -19,9 +20,11 @@ public interface AppointmentRepository
             Long doctorId
     );
 
-    boolean existsByDoctorIdAndAppointmentDateAndTimeSlot(
+    boolean
+    existsByDoctorIdAndAppointmentDateAndTimeSlotAndAppointmentStatusNot(
             Long doctorId,
             LocalDate appointmentDate,
-            TimeSlot timeSlot
+            TimeSlot timeSlot,
+            AppointmentStatus appointmentStatus
     );
 }

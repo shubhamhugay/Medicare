@@ -4,17 +4,17 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.medicare.dto.DoctorPageResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.PageRequest;
 
+import com.medicare.dto.DoctorPageResponse;
 import com.medicare.dto.DoctorProfileRequest;
 import com.medicare.dto.DoctorResponse;
 import com.medicare.entity.DoctorProfile;
-import com.medicare.entity.Role;
 import com.medicare.entity.User;
 import com.medicare.exception.DoctorNotFoundException;
 import com.medicare.exception.UserNotFoundException;
@@ -35,53 +35,11 @@ public class DoctorService {
         this.userRepository = userRepository;
     }
 
-    public DoctorResponse createDoctor(
-            DoctorProfileRequest request) {
 
-        User user = findUserById(
-                request.getUserId()
-        );
+    // -------------------------------------------------
+    // SEARCH / FILTER / PAGINATION
+    // -------------------------------------------------
 
-        if (user.getRole() != Role.DOCTOR) {
-
-            throw new IllegalArgumentException(
-                    "Doctor profile can only be created for a DOCTOR user"
-            );
-        }
-
-        if (doctorRepository.existsByUserId(user.getId())) {
-
-            throw new IllegalArgumentException(
-                    "Doctor profile already exists for this user"
-            );
-        }
-
-        DoctorProfile doctor =
-                new DoctorProfile();
-
-        doctor.setUser(user);
-
-        doctor.setSpecialization(
-                request.getSpecialization()
-        );
-
-        doctor.setExperienceYears(
-                request.getExperienceYears()
-        );
-
-        doctor.setConsultationFee(
-                request.getConsultationFee()
-        );
-
-        doctor.setPhotoUrl(
-                request.getPhotoUrl()
-        );
-
-        DoctorProfile savedDoctor =
-                doctorRepository.save(doctor);
-
-        return mapToDoctorResponse(savedDoctor);
-    }
     public DoctorPageResponse searchDoctors(
             String specialization,
             BigDecimal maxFee,
@@ -97,10 +55,7 @@ public class DoctorService {
         name =
                 normalizeText(name);
 
-        validatePagination(
-                page,
-                size
-        );
+        validatePagination(page, size);
 
         if (maxFee != null
                 && maxFee.compareTo(BigDecimal.ZERO) <= 0) {
@@ -157,6 +112,215 @@ public class DoctorService {
                 doctorPage.isLast()
         );
     }
+
+
+    // -------------------------------------------------
+    // GET DOCTOR
+    // -------------------------------------------------
+
+    public DoctorResponse getDoctorById(
+            Long id) {
+
+        DoctorProfile doctor =
+                findDoctorById(id);
+
+        return mapToDoctorResponse(doctor);
+    }
+
+
+    // -------------------------------------------------
+    // DOCTOR PROFILE MANAGEMENT
+    // -------------------------------------------------
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public DoctorResponse createMyProfile(
+            DoctorProfileRequest request,
+            String email) {
+
+        User user =
+                findUserByEmail(email);
+
+        if (doctorRepository
+                .existsByUserId(user.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Doctor profile already exists"
+            );
+        }
+
+        DoctorProfile doctor =
+                new DoctorProfile();
+
+        doctor.setUser(user);
+
+        doctor.setSpecialization(
+                request.getSpecialization()
+        );
+
+        doctor.setExperienceYears(
+                request.getExperienceYears()
+        );
+
+        doctor.setConsultationFee(
+                request.getConsultationFee()
+        );
+
+        doctor.setPhotoUrl(
+                request.getPhotoUrl()
+        );
+
+        DoctorProfile savedDoctor =
+                doctorRepository.save(doctor);
+
+        return mapToDoctorResponse(
+                savedDoctor
+        );
+    }
+
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public DoctorResponse getMyProfile(
+            String email) {
+
+        User user =
+                findUserByEmail(email);
+
+        DoctorProfile doctor =
+                findDoctorByUserId(
+                        user.getId()
+                );
+
+        return mapToDoctorResponse(
+                doctor
+        );
+    }
+
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public DoctorResponse updateMyProfile(
+            String email,
+            DoctorProfileRequest request) {
+
+        User user =
+                findUserByEmail(email);
+
+        DoctorProfile doctor =
+                findDoctorByUserId(
+                        user.getId()
+                );
+
+        doctor.setSpecialization(
+                request.getSpecialization()
+        );
+
+        doctor.setExperienceYears(
+                request.getExperienceYears()
+        );
+
+        doctor.setConsultationFee(
+                request.getConsultationFee()
+        );
+
+        doctor.setPhotoUrl(
+                request.getPhotoUrl()
+        );
+
+        DoctorProfile updatedDoctor =
+                doctorRepository.save(doctor);
+
+        return mapToDoctorResponse(
+                updatedDoctor
+        );
+    }
+
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    public void deleteMyProfile(
+            String email) {
+
+        User user =
+                findUserByEmail(email);
+
+        DoctorProfile doctor =
+                findDoctorByUserId(
+                        user.getId()
+                );
+
+        doctorRepository.delete(doctor);
+    }
+
+
+    // -------------------------------------------------
+    // HELPER METHODS
+    // -------------------------------------------------
+
+    private DoctorProfile findDoctorById(
+            Long id) {
+
+        return doctorRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor not found with id: "
+                                        + id
+                        )
+                );
+    }
+
+
+    private User findUserByEmail(
+            String email) {
+
+        return userRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found"
+                        )
+                );
+    }
+
+
+    private DoctorProfile findDoctorByUserId(
+            Long userId) {
+
+        return doctorRepository
+                .findByUserId(userId)
+                .orElseThrow(() ->
+                        new DoctorNotFoundException(
+                                "Doctor profile not found"
+                        )
+                );
+    }
+
+
+    private DoctorResponse mapToDoctorResponse(
+            DoctorProfile doctor) {
+
+        return new DoctorResponse(
+                doctor.getId(),
+                doctor.getUser().getName(),
+                doctor.getSpecialization(),
+                doctor.getExperienceYears(),
+                doctor.getConsultationFee(),
+                doctor.getPhotoUrl()
+        );
+    }
+
+
+    private String normalizeText(
+            String value) {
+
+        if (value == null
+                || value.isBlank()) {
+
+            return null;
+        }
+
+        return value.trim();
+    }
+
+
     private void validatePagination(
             int page,
             int size) {
@@ -175,6 +339,8 @@ public class DoctorService {
             );
         }
     }
+
+
     private String resolveSortField(
             String sortBy) {
 
@@ -204,6 +370,8 @@ public class DoctorService {
                     );
         };
     }
+
+
     private Sort.Direction resolveSortDirection(
             String direction) {
 
@@ -222,103 +390,5 @@ public class DoctorService {
         throw new IllegalArgumentException(
                 "Sort direction must be asc or desc"
         );
-    }
-    public DoctorResponse getDoctorById(
-            Long id) {
-
-        DoctorProfile doctor =
-                findDoctorById(id);
-
-        return mapToDoctorResponse(doctor);
-    }
-
-    public DoctorResponse updateDoctor(
-            Long id,
-            DoctorProfileRequest request) {
-
-        DoctorProfile doctor =
-                findDoctorById(id);
-
-        doctor.setSpecialization(
-                request.getSpecialization()
-        );
-
-        doctor.setExperienceYears(
-                request.getExperienceYears()
-        );
-
-        doctor.setConsultationFee(
-                request.getConsultationFee()
-        );
-
-        doctor.setPhotoUrl(
-                request.getPhotoUrl()
-        );
-
-        DoctorProfile updatedDoctor =
-                doctorRepository.save(doctor);
-
-        return mapToDoctorResponse(updatedDoctor);
-    }
-
-    public void deleteDoctor(Long id) {
-
-        DoctorProfile doctor =
-                findDoctorById(id);
-
-        doctorRepository.delete(doctor);
-    }
-
-    private DoctorProfile findDoctorById(
-            Long id) {
-
-        return doctorRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new DoctorNotFoundException(
-                                "Doctor not found with id: " + id
-                        )
-                );
-    }
-
-    private User findUserById(Long id) {
-
-        return userRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with id: " + id
-                        )
-                );
-    }
-
-    /*
-     * Converts DoctorProfile entity into the simpler
-     * response sent to the frontend.
-     */
-    private DoctorResponse mapToDoctorResponse(
-            DoctorProfile doctor) {
-
-        return new DoctorResponse(
-                doctor.getId(),
-                doctor.getUser().getName(),
-                doctor.getSpecialization(),
-                doctor.getExperienceYears(),
-                doctor.getConsultationFee(),
-                doctor.getPhotoUrl()
-        );
-    }
-
-    /*
-     * Empty request parameters should behave
-     * the same as parameters that were not supplied.
-     */
-    private String normalizeText(String value) {
-
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        return value.trim();
     }
 }
