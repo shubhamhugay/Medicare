@@ -95,89 +95,114 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth ->
-                        auth
+                                auth
 
-                                // Public APIs
-                                .requestMatchers(
-                                        "/api/health",
-                                        "/api/auth/register",
-                                        "/api/auth/login"
-                                )
-                                .permitAll()
+                                        // Public APIs
+                                        .requestMatchers(
+                                                "/api/health",
+                                                "/api/auth/register",
+                                                "/api/auth/login"
+                                        )
+                                        .permitAll()
 
-                                // Current user's profile
-                                .requestMatchers(
-                                        "/api/users/me"
-                                )
-                                .authenticated()
+                                        // Current user's profile
+                                        .requestMatchers(
+                                                "/api/users/me"
+                                        )
+                                        .authenticated()
 
-                                // Doctor can manage only own profile
-                                .requestMatchers(
-                                        "/api/doctors/profile",
-                                        "/api/doctors/profile/**"
-                                )
-                                .hasRole("DOCTOR")
+                                        // Doctor can manage only own profile
+                                        .requestMatchers(
+                                                "/api/doctors/profile",
+                                                "/api/doctors/profile/**"
+                                        )
+                                        .hasRole("DOCTOR")
 
-                                // Doctor search/listing
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/doctors/**"
-                                )
-                                .hasAnyRole(
-                                        "PATIENT",
-                                        "DOCTOR"
-                                )
+                                        // Doctor search/listing
+                                        .requestMatchers(
+                                                HttpMethod.GET,
+                                                "/api/doctors/**"
+                                        )
+                                        .hasAnyRole(
+                                                "PATIENT",
+                                                "DOCTOR"
+                                        )
 
-                                // Patient books appointments
-                                .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/api/appointments"
-                                )
-                                .hasRole("PATIENT")
+                                        // Patient books appointments
+                                        .requestMatchers(
+                                                HttpMethod.POST,
+                                                "/api/appointments"
+                                        )
+                                        .hasRole("PATIENT")
 
-                                // Patient appointment history
-                                .requestMatchers(
-                                        "/api/appointments/my"
-                                )
-                                .hasRole("PATIENT")
+                                        // Patient appointment history
+                                        .requestMatchers(
+                                                "/api/appointments/my"
+                                        )
+                                        .hasRole("PATIENT")
 
-                                // Doctor schedule
-                                .requestMatchers(
-                                        "/api/appointments/doctor/**"
-                                )
-                                .hasRole("DOCTOR")
+                                        // Doctor schedule
+                                        .requestMatchers(
+                                                "/api/appointments/doctor/**"
+                                        )
+                                        .hasRole("DOCTOR")
 
-                                // Patient cancellation
-                                .requestMatchers(
-                                        HttpMethod.PATCH,
-                                        "/api/appointments/*/cancel"
-                                )
-                                .hasRole("PATIENT")
+                                        // Patient cancellation
+                                        .requestMatchers(
+                                                HttpMethod.PATCH,
+                                                "/api/appointments/*/cancel"
+                                        )
+                                        .hasRole("PATIENT")
 
-                                // Doctor completion
-                                .requestMatchers(
-                                        HttpMethod.PATCH,
-                                        "/api/appointments/*/complete"
-                                )
-                                .hasRole("DOCTOR")
+                                        // Doctor completion
+                                        .requestMatchers(
+                                                HttpMethod.PATCH,
+                                                "/api/appointments/*/complete"
+                                        )
+                                        .hasRole("DOCTOR")
 
-                                // Appointment details
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/appointments/*"
-                                )
-                                .hasAnyRole(
-                                        "PATIENT",
-                                        "DOCTOR"
-                                )
+                                        // Appointment details
+                                        .requestMatchers(
+                                                HttpMethod.GET,
+                                                "/api/appointments/*"
+                                        )
+                                        .hasAnyRole(
+                                                "PATIENT",
+                                                "DOCTOR"
+                                        )
+// Doctor creates prescription
+                                        .requestMatchers(
+                                                HttpMethod.POST,
+                                                "/api/prescriptions"
+                                        )
+                                        .hasRole("DOCTOR")
 
-                                /*
-                                 * Safer default:
-                                 * anything we forgot to configure
-                                 * is denied.
-                                 */
-                                .anyRequest()
-                                .denyAll()
+
+// Patient views all own prescriptions
+                                        .requestMatchers(
+                                                HttpMethod.GET,
+                                                "/api/prescriptions/my"
+                                        )
+                                        .hasRole("PATIENT")
+
+
+// Patient or assigned doctor can view
+// prescription for an appointment
+                                        .requestMatchers(
+                                                HttpMethod.GET,
+                                                "/api/prescriptions/appointment/*"
+                                        )
+                                        .hasAnyRole(
+                                                "PATIENT",
+                                                "DOCTOR"
+                                        )
+                                        /*
+                                         * Safer default:
+                                         * anything we forgot to configure
+                                         * is denied.
+                                         */
+                                        .anyRequest()
+                                        .denyAll()
                 )
                 /*
                  * Return 401 when authentication

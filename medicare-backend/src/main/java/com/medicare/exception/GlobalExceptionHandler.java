@@ -187,4 +187,46 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(errorResponse);
     }
+
+
+    @ExceptionHandler(
+            PrescriptionNotFoundException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handlePrescriptionNotFound(
+            PrescriptionNotFoundException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+    @ExceptionHandler(
+            PrescriptionConflictException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handlePrescriptionConflict(
+            PrescriptionConflictException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.CONFLICT.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
 }
