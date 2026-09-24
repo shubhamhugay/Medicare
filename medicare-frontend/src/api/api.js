@@ -7,4 +7,23 @@ const api = axios.create({
     }
 });
 
+
+// Used for APIs that require JWT
+export const getAuthConfig = () => {
+
+    const token =
+        localStorage.getItem("token");
+
+    if (!token) {
+        return {};
+    }
+
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+};
+
+
 export default api;

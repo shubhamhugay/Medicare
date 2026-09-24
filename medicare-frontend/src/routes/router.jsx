@@ -2,6 +2,8 @@ import {
     createBrowserRouter
 } from "react-router";
 
+import MainLayout from "../components/layout/Layout";
+
 import Home from "../pages/common/Home";
 
 import Login from "../pages/auth/Login";
@@ -10,6 +12,8 @@ import Register from "../pages/auth/Register";
 
 import PatientDashboard from "../pages/patient/PatientDashboard";
 
+import MyProfile from "../pages/patient/MyProfile";
+
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 
 import Unauthorized from "../pages/common/Unauthorized";
@@ -17,6 +21,7 @@ import Unauthorized from "../pages/common/Unauthorized";
 import NotFound from "../pages/common/NotFound";
 
 import ProtectedRoute from "./ProtectedRoute";
+import Doctors from "../components/doctor/Doctors";
 
 
 const router =
@@ -25,75 +30,125 @@ const router =
         {
             path: "/",
 
-            element: <Home />
-        },
-
-
-        {
-            path: "/login",
-
-            element: <Login />
-        },
-
-
-        {
-            path: "/register",
-
-            element: <Register />
-        },
-
-
-        {
-            path:
-                "/patient/dashboard",
-
-            element: (
-
-                <ProtectedRoute
-                    allowedRoles={[
-                        "PATIENT"
-                    ]}
-                >
-
-                    <PatientDashboard />
-
-                </ProtectedRoute>
-            )
-        },
-
-
-        {
-            path:
-                "/doctor/dashboard",
-
-            element: (
-
-                <ProtectedRoute
-                    allowedRoles={[
-                        "DOCTOR"
-                    ]}
-                >
-
-                    <DoctorDashboard />
-
-                </ProtectedRoute>
-            )
-        },
-
-
-        {
-            path: "/unauthorized",
-
             element:
-                <Unauthorized />
-        },
+                <MainLayout />,
+
+            children: [
+
+                {
+                    index: true,
+
+                    element:
+                        <Home />
+                },
 
 
-        {
-            path: "*",
+                {
+                    path: "login",
 
-            element:
-                <NotFound />
+                    element:
+                        <Login />
+                },
+
+
+                {
+                    path: "register",
+
+                    element:
+                        <Register />
+                },
+
+
+                {
+                    path:
+                        "patient/dashboard",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
+
+                            <PatientDashboard />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+{
+    path:
+        "patient/doctors",
+
+    element: (
+
+        <ProtectedRoute
+            allowedRoles={[
+                "PATIENT"
+            ]}
+        >
+
+            <Doctors />
+
+        </ProtectedRoute>
+    )
+},
+                {
+                    path:
+                        "patient/profile",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
+
+                            <MyProfile />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+
+                {
+                    path:
+                        "doctor/dashboard",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "DOCTOR"
+                            ]}
+                        >
+
+                            <DoctorDashboard />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+
+                {
+                    path:
+                        "unauthorized",
+
+                    element:
+                        <Unauthorized />
+                },
+
+
+                {
+                    path: "*",
+
+                    element:
+                        <NotFound />
+                }
+
+            ]
         }
 
     ]);

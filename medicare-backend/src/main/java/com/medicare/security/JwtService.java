@@ -40,7 +40,7 @@ public class JwtService {
                                 currentTime
                                         + jwtExpiration
                         )
-                )
+                ) 
                 .signWith(
                         getSigningKey()
                 )
