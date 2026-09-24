@@ -44,11 +44,40 @@ const cancelAppointment =
     };
 
 
+const getDoctorAppointments =
+    async () => {
+
+        const response =
+            await api.get(
+                "/appointments/doctor/me",
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
+const completeAppointment =
+    async (appointmentId) => {
+
+        const response =
+            await api.patch(
+                `/appointments/${appointmentId}/complete`,
+                {},
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
 const appointmentService = {
 
     createAppointment,
     getMyAppointments,
-    cancelAppointment
+    cancelAppointment,
+    getDoctorAppointments,
+    completeAppointment
 };
 
 

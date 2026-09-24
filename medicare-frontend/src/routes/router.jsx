@@ -21,6 +21,7 @@ import Unauthorized from "../pages/common/Unauthorized";
 import NotFound from "../pages/common/NotFound";
 
 import Doctors from "../components/doctor/Doctors";
+import DoctorSchedule from "../pages/doctor/DoctorSchedule";
 import BookAppointment from "../pages/patient/BookAppointment";
 import MyAppointments from "../pages/patient/MyAppointment";
 import ProtectedRoute from "./ProtectedRoute";
@@ -171,6 +172,24 @@ const router =
                         >
 
                             <MyAppointments />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+                {
+                    path:
+                        "doctor/schedule",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "DOCTOR"
+                            ]}
+                        >
+
+                            <DoctorSchedule />
 
                         </ProtectedRoute>
                     )

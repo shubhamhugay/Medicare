@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import {
     useAuth
 } from "../../context/AuthContext";
@@ -46,12 +47,12 @@ function DoctorDashboard() {
                                 appointments.
                             </p>
 
-                            <button
+                            <Link
+                                to="/doctor/schedule"
                                 className="btn btn-primary"
-                                disabled
                             >
-                                Coming Soon
-                            </button>
+                                View Schedule
+                            </Link>
 
                         </div>
 

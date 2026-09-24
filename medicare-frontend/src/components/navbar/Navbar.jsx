@@ -108,6 +108,9 @@ function Navbar() {
                                     </li>
 
 
+
+
+
                                     {/* Doctors link added here */}
 
                                     <li className="nav-item">
@@ -153,16 +156,30 @@ function Navbar() {
                             user?.role === "DOCTOR"
                             && (
 
-                                <li className="nav-item">
+                                <>
+                                    <li className="nav-item">
 
-                                    <Link
-                                        className="nav-link"
-                                        to="/doctor/dashboard"
-                                    >
-                                        Dashboard
-                                    </Link>
+                                        <Link
+                                            className="nav-link"
+                                            to="/doctor/dashboard"
+                                        >
+                                            Dashboard
+                                        </Link>
 
-                                </li>
+                                    </li>
+
+
+                                    <li className="nav-item">
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/doctor/schedule"
+                                        >
+                                            My Schedule
+                                        </Link>
+
+                                    </li>
+                                </>
 
                             )
                         }
