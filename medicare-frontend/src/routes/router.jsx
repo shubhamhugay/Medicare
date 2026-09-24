@@ -1,52 +1,102 @@
-import { createBrowserRouter } from "react-router";
+import {
+    createBrowserRouter
+} from "react-router";
 
-import Login from "../pages/auth/Login";
-import Register from "../pages/auth/Register";
 import Home from "../pages/common/Home";
 
-import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+import Login from "../pages/auth/Login";
+
+import Register from "../pages/auth/Register";
+
 import PatientDashboard from "../pages/patient/PatientDashboard";
 
-import NotFound from "../pages/common/NotFound";
+import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+
 import Unauthorized from "../pages/common/Unauthorized";
 
-const router = createBrowserRouter([
+import NotFound from "../pages/common/NotFound";
 
-    {
-        path: "/",
-        element: <Home />
-    },
+import ProtectedRoute from "./ProtectedRoute";
 
-    {
-        path: "/login",
-        element: <Login />
-    },
 
-    {
-        path: "/register",
-        element: <Register />
-    },
+const router =
+    createBrowserRouter([
 
-    {
-        path: "/patient/dashboard",
-        element: <PatientDashboard />
-    },
+        {
+            path: "/",
 
-    {
-        path: "/doctor/dashboard",
-        element: <DoctorDashboard />
-    },
+            element: <Home />
+        },
 
-    {
-        path: "/unauthorized",
-        element: <Unauthorized />
-    },
 
-    {
-        path: "*",
-        element: <NotFound />
-    }
+        {
+            path: "/login",
 
-]);
+            element: <Login />
+        },
 
-export default router;  
+
+        {
+            path: "/register",
+
+            element: <Register />
+        },
+
+
+        {
+            path:
+                "/patient/dashboard",
+
+            element: (
+
+                <ProtectedRoute
+                    allowedRoles={[
+                        "PATIENT"
+                    ]}
+                >
+
+                    <PatientDashboard />
+
+                </ProtectedRoute>
+            )
+        },
+
+
+        {
+            path:
+                "/doctor/dashboard",
+
+            element: (
+
+                <ProtectedRoute
+                    allowedRoles={[
+                        "DOCTOR"
+                    ]}
+                >
+
+                    <DoctorDashboard />
+
+                </ProtectedRoute>
+            )
+        },
+
+
+        {
+            path: "/unauthorized",
+
+            element:
+                <Unauthorized />
+        },
+
+
+        {
+            path: "*",
+
+            element:
+                <NotFound />
+        }
+
+    ]);
+
+
+export default router;
