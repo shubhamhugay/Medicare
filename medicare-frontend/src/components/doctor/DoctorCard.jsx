@@ -1,3 +1,8 @@
+import {
+    Link
+} from "react-router";
+
+
 function DoctorCard({
     doctor
 }) {
@@ -42,12 +47,10 @@ function DoctorCard({
             }
 
 
-            <div className="card-body">
+            <div className="card-body d-flex flex-column">
 
                 <h5 className="card-title">
-
                     {doctor.name}
-
                 </h5>
 
 
@@ -69,23 +72,25 @@ function DoctorCard({
                 </p>
 
 
-                <p className="card-text mb-3">
+                <p className="card-text mb-4">
 
                     <strong>
                         Consultation Fee:
                     </strong>{" "}
 
-                    {doctor.consultationFee}
+                    ₹{doctor.consultationFee}
 
                 </p>
 
 
-                <button
-                    className="btn btn-primary w-100"
-                    disabled
+                <Link
+                    to={
+                        `/patient/doctors/${doctor.id}/book`
+                    }
+                    className="btn btn-primary w-100 mt-auto"
                 >
                     Book Appointment
-                </button>
+                </Link>
 
             </div>
 

@@ -20,8 +20,9 @@ import Unauthorized from "../pages/common/Unauthorized";
 
 import NotFound from "../pages/common/NotFound";
 
-import ProtectedRoute from "./ProtectedRoute";
 import Doctors from "../components/doctor/Doctors";
+import BookAppointment from "../pages/patient/BookAppointment";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 const router =
@@ -77,23 +78,39 @@ const router =
                     )
                 },
 
-{
-    path:
-        "patient/doctors",
+                {
+                    path:
+                        "patient/doctors",
 
-    element: (
+                    element: (
 
-        <ProtectedRoute
-            allowedRoles={[
-                "PATIENT"
-            ]}
-        >
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
 
-            <Doctors />
+                            <Doctors />
 
-        </ProtectedRoute>
-    )
-},
+                        </ProtectedRoute>
+                    )
+                }, {
+                    path:
+                        "patient/doctors/:doctorId/book",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
+
+                            <BookAppointment />
+
+                        </ProtectedRoute>
+                    )
+                },
                 {
                     path:
                         "patient/profile",
