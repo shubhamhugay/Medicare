@@ -17,8 +17,38 @@ const createAppointment =
     };
 
 
+const getMyAppointments =
+    async () => {
+
+        const response =
+            await api.get(
+                "/appointments/my",
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
+const cancelAppointment =
+    async (appointmentId) => {
+
+        const response =
+            await api.patch(
+                `/appointments/${appointmentId}/cancel`,
+                {},
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
 const appointmentService = {
-    createAppointment
+
+    createAppointment,
+    getMyAppointments,
+    cancelAppointment
 };
 
 

@@ -121,7 +121,16 @@ function Navbar() {
 
                                     </li>
 
+                                    <li className="nav-item">
 
+                                        <Link
+                                            className="nav-link"
+                                            to="/patient/appointments"
+                                        >
+                                            My Appointments
+                                        </Link>
+
+                                    </li>
                                     <li className="nav-item">
 
                                         <Link

@@ -22,6 +22,7 @@ import NotFound from "../pages/common/NotFound";
 
 import Doctors from "../components/doctor/Doctors";
 import BookAppointment from "../pages/patient/BookAppointment";
+import MyAppointments from "../pages/patient/MyAppointment";
 import ProtectedRoute from "./ProtectedRoute";
 
 
@@ -157,7 +158,23 @@ const router =
                         <Unauthorized />
                 },
 
+                {
+                    path:
+                        "patient/appointments",
 
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
+
+                            <MyAppointments />
+
+                        </ProtectedRoute>
+                    )
+                },
                 {
                     path: "*",
 

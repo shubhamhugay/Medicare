@@ -83,12 +83,12 @@ function PatientDashboard() {
                                 appointments.
                             </p>
 
-                            <button
+                            <Link
+                                to="/patient/appointments"
                                 className="btn btn-primary"
-                                disabled
                             >
-                                Coming Soon
-                            </button>
+                                View Appointments
+                            </Link>
 
                         </div>
 
@@ -115,11 +115,11 @@ function PatientDashboard() {
                             </p>
 
                             <Link
-    to="/patient/doctors"
-    className="btn btn-primary"
->
-    Find Doctor
-</Link>
+                                to="/patient/doctors"
+                                className="btn btn-primary"
+                            >
+                                Find Doctor
+                            </Link>
 
                         </div>
 
