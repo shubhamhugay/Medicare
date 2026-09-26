@@ -1,3 +1,4 @@
+
 import {
     Link,
     useNavigate
@@ -6,7 +7,6 @@ import {
 import {
     useAuth
 } from "../../context/AuthContext";
-
 
 function Navbar() {
 
@@ -18,17 +18,12 @@ function Navbar() {
         logout
     } = useAuth();
 
-
     const handleLogout = () => {
-
         logout();
-
         navigate("/login");
     };
 
-
     return (
-
         <nav className="navbar navbar-expand-lg bg-white border-bottom">
 
             <div className="container">
@@ -60,8 +55,8 @@ function Navbar() {
 
 
                         {!isAuthenticated && (
-
                             <>
+
                                 <li className="nav-item">
 
                                     <Link
@@ -84,8 +79,8 @@ function Navbar() {
                                     </Link>
 
                                 </li>
-                            </>
 
+                            </>
                         )}
 
 
@@ -93,9 +88,11 @@ function Navbar() {
                             isAuthenticated
                             &&
                             user?.role === "PATIENT"
-                            && (
+                            &&
+                            (
 
                                 <>
+
                                     <li className="nav-item">
 
                                         <Link
@@ -108,11 +105,6 @@ function Navbar() {
                                     </li>
 
 
-
-
-
-                                    {/* Doctors link added here */}
-
                                     <li className="nav-item">
 
                                         <Link
@@ -124,6 +116,7 @@ function Navbar() {
 
                                     </li>
 
+
                                     <li className="nav-item">
 
                                         <Link
@@ -134,6 +127,8 @@ function Navbar() {
                                         </Link>
 
                                     </li>
+
+
                                     <li className="nav-item">
 
                                         <Link
@@ -144,6 +139,7 @@ function Navbar() {
                                         </Link>
 
                                     </li>
+
                                 </>
 
                             )
@@ -154,9 +150,11 @@ function Navbar() {
                             isAuthenticated
                             &&
                             user?.role === "DOCTOR"
-                            && (
+                            &&
+                            (
 
                                 <>
+
                                     <li className="nav-item">
 
                                         <Link
@@ -179,6 +177,19 @@ function Navbar() {
                                         </Link>
 
                                     </li>
+
+
+                                    <li className="nav-item">
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/doctor/profile"
+                                        >
+                                            My Profile
+                                        </Link>
+
+                                    </li>
+
                                 </>
 
                             )
@@ -200,7 +211,6 @@ function Navbar() {
 
                         )}
 
-
                     </ul>
 
                 </div>
@@ -208,9 +218,7 @@ function Navbar() {
             </div>
 
         </nav>
-
     );
 }
-
 
 export default Navbar;

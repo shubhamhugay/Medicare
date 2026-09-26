@@ -22,7 +22,6 @@ const getDoctors = async ({
 
 
     if (specialization) {
-
         params.specialization =
             specialization;
     }
@@ -40,7 +39,6 @@ const getDoctors = async ({
 
 
     if (name.trim()) {
-
         params.name =
             name.trim();
     }
@@ -54,7 +52,6 @@ const getDoctors = async ({
                 params
             }
         );
-
 
     return response.data;
 };
@@ -73,9 +70,66 @@ const getDoctorById =
     };
 
 
+const createMyProfile =
+    async (profileData) => {
+
+        const response =
+            await api.post(
+                "/doctors/profile",
+                profileData,
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
+const getMyProfile =
+    async () => {
+
+        const response =
+            await api.get(
+                "/doctors/profile/me",
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
+const updateMyProfile =
+    async (profileData) => {
+
+        const response =
+            await api.put(
+                "/doctors/profile/me",
+                profileData,
+                getAuthConfig()
+            );
+
+        return response.data;
+    };
+
+
+const deleteMyProfile =
+    async () => {
+
+        await api.delete(
+            "/doctors/profile/me",
+            getAuthConfig()
+        );
+    };
+
+
 const doctorService = {
+
     getDoctors,
-    getDoctorById
+    getDoctorById,
+
+    createMyProfile,
+    getMyProfile,
+    updateMyProfile,
+    deleteMyProfile
 };
 
 
