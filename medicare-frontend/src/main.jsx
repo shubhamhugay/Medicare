@@ -1,27 +1,43 @@
 import React from "react";
+
 import ReactDOM from "react-dom/client";
 
-import { RouterProvider } from "react-router/dom";
+import {
+    RouterProvider
+} from "react-router/dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import "./index.css";
 
-import { AuthProvider } from "./context/AuthContext";
 import router from "./routes/router";
 
-ReactDOM.createRoot(
-    document.getElementById("root")
-).render(
-    <React.StrictMode>
+import {
+    AuthProvider
+} from "./context/AuthContext";
 
-        <AuthProvider>
 
-            <RouterProvider
-                router={router}
-            />
+ReactDOM
+    .createRoot(
+        document.getElementById(
+            "root"
+        )
+    )
+    .render(
 
-        </AuthProvider>
-    </React.StrictMode>
-);
+        <React.StrictMode>
+
+            <AuthProvider>
+
+                <RouterProvider
+                    router={
+                        router
+                    }
+                />
+
+            </AuthProvider>
+
+        </React.StrictMode>
+    );

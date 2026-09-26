@@ -18,6 +18,8 @@ function ProtectedRoute({
     } = useAuth();
 
 
+    // User is not logged in
+
     if (!isAuthenticated) {
 
         return (
@@ -28,6 +30,9 @@ function ProtectedRoute({
         );
     }
 
+
+    // User is logged in,
+    // but doesn't have required role
 
     if (
         allowedRoles.length > 0

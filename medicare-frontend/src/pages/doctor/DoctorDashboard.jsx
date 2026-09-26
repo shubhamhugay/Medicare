@@ -1,4 +1,6 @@
-import { Link } from "react-router";
+import {
+    Link
+} from "react-router";
 
 import {
     useAuth
@@ -16,6 +18,9 @@ function DoctorDashboard() {
 
         <div className="container py-5">
 
+
+            {/* WELCOME SECTION */}
+
             <div className="mb-5">
 
                 <h2>
@@ -23,8 +28,9 @@ function DoctorDashboard() {
                 </h2>
 
                 <p className="text-secondary">
-                    Manage appointments and
-                    patient consultations.
+                    Manage appointments,
+                    prescriptions and your
+                    doctor profile.
                 </p>
 
             </div>
@@ -33,7 +39,7 @@ function DoctorDashboard() {
             <div className="row g-4">
 
 
-                {/* My Schedule */}
+                {/* MY SCHEDULE */}
 
                 <div className="col-md-6 col-lg-4">
 
@@ -41,16 +47,18 @@ function DoctorDashboard() {
 
                         <div className="card-body">
 
-                            <h5>
+                            <h5 className="card-title">
                                 My Schedule
                             </h5>
 
-                            <p className="text-secondary">
+                            <p className="card-text text-secondary">
 
                                 View your assigned patient
-                                appointments.
+                                appointments and manage
+                                consultations.
 
                             </p>
+
 
                             <Link
                                 to="/doctor/schedule"
@@ -66,7 +74,7 @@ function DoctorDashboard() {
                 </div>
 
 
-                {/* Prescriptions */}
+                {/* PRESCRIPTIONS */}
 
                 <div className="col-md-6 col-lg-4">
 
@@ -74,23 +82,25 @@ function DoctorDashboard() {
 
                         <div className="card-body">
 
-                            <h5>
+                            <h5 className="card-title">
                                 Prescriptions
                             </h5>
 
-                            <p className="text-secondary">
+                            <p className="card-text text-secondary">
 
-                                Add prescriptions after
-                                completing consultations.
+                                Add or view prescriptions
+                                for completed patient
+                                appointments.
 
                             </p>
 
-                            <button
-                                className="btn btn-primary"
-                                disabled
+
+                            <Link
+                                to="/doctor/schedule"
+                                className="btn btn-outline-primary"
                             >
-                                Coming Soon
-                            </button>
+                                Manage Prescriptions
+                            </Link>
 
                         </div>
 
@@ -99,7 +109,7 @@ function DoctorDashboard() {
                 </div>
 
 
-                {/* My Profile */}
+                {/* MY PROFILE */}
 
                 <div className="col-md-6 col-lg-4">
 
@@ -107,17 +117,18 @@ function DoctorDashboard() {
 
                         <div className="card-body">
 
-                            <h5>
+                            <h5 className="card-title">
                                 My Profile
                             </h5>
 
-                            <p className="text-secondary">
+                            <p className="card-text text-secondary">
 
                                 Manage specialization,
                                 experience, consultation
                                 fee and profile photo.
 
                             </p>
+
 
                             <Link
                                 to="/doctor/profile"
@@ -136,9 +147,7 @@ function DoctorDashboard() {
             </div>
 
         </div>
-
     );
-
 }
 
 

@@ -1,6 +1,6 @@
-
 import {
     Link,
+    NavLink,
     useNavigate
 } from "react-router";
 
@@ -8,9 +8,12 @@ import {
     useAuth
 } from "../../context/AuthContext";
 
+
 function Navbar() {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
+
 
     const {
         user,
@@ -18,23 +21,56 @@ function Navbar() {
         logout
     } = useAuth();
 
+
     const handleLogout = () => {
+
         logout();
-        navigate("/login");
+
+        navigate(
+            "/login"
+        );
     };
 
+
+    const getNavClass =
+        ({ isActive }) => {
+
+            return isActive
+                ? "nav-link active fw-semibold"
+                : "nav-link";
+        };
+
+
     return (
-        <nav className="navbar navbar-expand-lg bg-white border-bottom">
+
+        <nav
+            className="
+                navbar
+                navbar-expand-lg
+                bg-white
+                border-bottom
+                shadow-sm
+            "
+        >
 
             <div className="container">
 
+
+                {/* BRAND */}
+
                 <Link
-                    className="navbar-brand fw-bold text-primary"
+                    className="
+                        navbar-brand
+                        fw-bold
+                        text-primary
+                    "
                     to="/"
                 >
                     Medicare
                 </Link>
 
+
+                {/* MOBILE BUTTON */}
 
                 <button
                     className="navbar-toggler"
@@ -42,101 +78,142 @@ function Navbar() {
                     data-bs-toggle="collapse"
                     data-bs-target="#mainNavbar"
                 >
-                    <span className="navbar-toggler-icon"></span>
+
+                    <span
+                        className="navbar-toggler-icon"
+                    >
+                    </span>
+
                 </button>
 
 
                 <div
-                    className="collapse navbar-collapse"
+                    className="
+                        collapse
+                        navbar-collapse
+                    "
                     id="mainNavbar"
                 >
 
-                    <ul className="navbar-nav ms-auto align-items-lg-center">
+                    <ul
+                        className="
+                            navbar-nav
+                            ms-auto
+                            align-items-lg-center
+                        "
+                    >
 
 
-                        {!isAuthenticated && (
-                            <>
-
-                                <li className="nav-item">
-
-                                    <Link
-                                        className="nav-link"
-                                        to="/login"
-                                    >
-                                        Login
-                                    </Link>
-
-                                </li>
-
-
-                                <li className="nav-item">
-
-                                    <Link
-                                        className="btn btn-primary ms-lg-2"
-                                        to="/register"
-                                    >
-                                        Register
-                                    </Link>
-
-                                </li>
-
-                            </>
-                        )}
-
+                        {/* -------------------------------- */}
+                        {/* LOGGED OUT */}
+                        {/* -------------------------------- */}
 
                         {
-                            isAuthenticated
-                            &&
-                            user?.role === "PATIENT"
-                            &&
-                            (
+                            !isAuthenticated
+                            && (
 
                                 <>
 
                                     <li className="nav-item">
 
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
+                                            to="/login"
+                                        >
+                                            Login
+                                        </NavLink>
+
+                                    </li>
+
+
+                                    <li className="nav-item">
+
                                         <Link
-                                            className="nav-link"
+                                            className="
+                                                btn
+                                                btn-primary
+                                                ms-lg-2
+                                            "
+                                            to="/register"
+                                        >
+                                            Register
+                                        </Link>
+
+                                    </li>
+
+                                </>
+
+                            )
+                        }
+
+
+                        {/* -------------------------------- */}
+                        {/* PATIENT */}
+                        {/* -------------------------------- */}
+
+                        {
+                            isAuthenticated
+                            &&
+                            user?.role ===
+                                "PATIENT"
+                            && (
+
+                                <>
+
+                                    <li className="nav-item">
+
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/patient/dashboard"
                                         >
                                             Dashboard
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/patient/doctors"
                                         >
                                             Doctors
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/patient/appointments"
                                         >
                                             My Appointments
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/patient/profile"
                                         >
                                             My Profile
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
@@ -146,47 +223,57 @@ function Navbar() {
                         }
 
 
+                        {/* -------------------------------- */}
+                        {/* DOCTOR */}
+                        {/* -------------------------------- */}
+
                         {
                             isAuthenticated
                             &&
-                            user?.role === "DOCTOR"
-                            &&
-                            (
+                            user?.role ===
+                                "DOCTOR"
+                            && (
 
                                 <>
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/doctor/dashboard"
                                         >
                                             Dashboard
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/doctor/schedule"
                                         >
                                             My Schedule
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
 
                                     <li className="nav-item">
 
-                                        <Link
-                                            className="nav-link"
+                                        <NavLink
+                                            className={
+                                                getNavClass
+                                            }
                                             to="/doctor/profile"
                                         >
                                             My Profile
-                                        </Link>
+                                        </NavLink>
 
                                     </li>
 
@@ -196,20 +283,34 @@ function Navbar() {
                         }
 
 
-                        {isAuthenticated && (
+                        {/* -------------------------------- */}
+                        {/* LOGOUT */}
+                        {/* -------------------------------- */}
 
-                            <li className="nav-item ms-lg-3">
+                        {
+                            isAuthenticated
+                            && (
 
-                                <button
-                                    className="btn btn-outline-danger"
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </button>
+                                <li className="nav-item ms-lg-3">
 
-                            </li>
+                                    <button
+                                        type="button"
+                                        className="
+                                            btn
+                                            btn-outline-danger
+                                        "
+                                        onClick={
+                                            handleLogout
+                                        }
+                                    >
+                                        Logout
+                                    </button>
 
-                        )}
+                                </li>
+
+                            )
+                        }
+
 
                     </ul>
 
@@ -220,5 +321,6 @@ function Navbar() {
         </nav>
     );
 }
+
 
 export default Navbar;

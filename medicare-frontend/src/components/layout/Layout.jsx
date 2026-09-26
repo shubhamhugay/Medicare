@@ -8,6 +8,7 @@ import Navbar from "../navbar/Navbar";
 function MainLayout() {
 
     return (
+
         <>
             <Navbar />
 

@@ -2,30 +2,49 @@ import {
     createBrowserRouter
 } from "react-router";
 
-import MainLayout from "../components/layout/Layout";
+import MainLayout from "../components/layout/MainLayout";
+
+import ProtectedRoute from "./ProtectedRoute";
+
+
+// COMMON PAGES
 
 import Home from "../pages/common/Home";
-
-import Login from "../pages/auth/Login";
-
-import Register from "../pages/auth/Register";
-
-import PatientDashboard from "../pages/patient/PatientDashboard";
-
-import MyProfile from "../pages/patient/MyProfile";
-
-import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 
 import Unauthorized from "../pages/common/Unauthorized";
 
 import NotFound from "../pages/common/NotFound";
 
-import Doctors from "../components/doctor/Doctors";
-import DoctorProfile from "../pages/doctor/DoctorProfile";
-import DoctorSchedule from "../pages/doctor/DoctorSchedule";
+
+// AUTH PAGES
+
+import Login from "../pages/auth/Login";
+
+import Register from "../pages/auth/Register";
+
+
+// PATIENT PAGES
+
+import PatientDashboard from "../pages/patient/PatientDashboard";
+
+import Doctors from "../pages/patient/Doctors";
+
 import BookAppointment from "../pages/patient/BookAppointment";
-import MyAppointments from "../pages/patient/MyAppointment";
-import ProtectedRoute from "./ProtectedRoute";
+
+import MyAppointments from "../pages/patient/MyAppointments";
+
+import MyProfile from "../pages/patient/MyProfile";
+
+
+// DOCTOR PAGES
+
+import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+
+import DoctorSchedule from "../pages/doctor/DoctorSchedule";
+
+import DoctorProfile from "../pages/doctor/DoctorProfile";
+
+import DoctorPrescription from "../pages/doctor/DoctorPrescription";
 
 
 const router =
@@ -38,6 +57,11 @@ const router =
                 <MainLayout />,
 
             children: [
+
+
+                // -----------------------------------
+                // PUBLIC ROUTES
+                // -----------------------------------
 
                 {
                     index: true,
@@ -63,6 +87,10 @@ const router =
                 },
 
 
+                // -----------------------------------
+                // PATIENT ROUTES
+                // -----------------------------------
+
                 {
                     path:
                         "patient/dashboard",
@@ -81,6 +109,7 @@ const router =
                     )
                 },
 
+
                 {
                     path:
                         "patient/doctors",
@@ -97,7 +126,10 @@ const router =
 
                         </ProtectedRoute>
                     )
-                }, {
+                },
+
+
+                {
                     path:
                         "patient/doctors/:doctorId/book",
 
@@ -114,6 +146,27 @@ const router =
                         </ProtectedRoute>
                     )
                 },
+
+
+                {
+                    path:
+                        "patient/appointments",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "PATIENT"
+                            ]}
+                        >
+
+                            <MyAppointments />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+
                 {
                     path:
                         "patient/profile",
@@ -133,6 +186,10 @@ const router =
                 },
 
 
+                // -----------------------------------
+                // DOCTOR ROUTES
+                // -----------------------------------
+
                 {
                     path:
                         "doctor/dashboard",
@@ -151,32 +208,6 @@ const router =
                     )
                 },
 
-
-                {
-                    path:
-                        "unauthorized",
-
-                    element:
-                        <Unauthorized />
-                },
-
-                {
-                    path:
-                        "patient/appointments",
-
-                    element: (
-
-                        <ProtectedRoute
-                            allowedRoles={[
-                                "PATIENT"
-                            ]}
-                        >
-
-                            <MyAppointments />
-
-                        </ProtectedRoute>
-                    )
-                },
 
                 {
                     path:
@@ -214,6 +245,39 @@ const router =
                         </ProtectedRoute>
                     )
                 },
+
+
+                {
+                    path:
+                        "doctor/appointments/:appointmentId/prescription",
+
+                    element: (
+
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "DOCTOR"
+                            ]}
+                        >
+
+                            <DoctorPrescription />
+
+                        </ProtectedRoute>
+                    )
+                },
+
+
+                // -----------------------------------
+                // COMMON ROUTES
+                // -----------------------------------
+
+                {
+                    path:
+                        "unauthorized",
+
+                    element:
+                        <Unauthorized />
+                },
+
 
                 {
                     path: "*",

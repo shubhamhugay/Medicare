@@ -1,9 +1,14 @@
 function AppointmentCard({
     appointment,
     onCancel,
-    cancellingId
+    cancellingId,
+    onViewPrescription
 }) {
 
+
+    // -------------------------------------------------
+    // FORMAT TIME SLOT
+    // -------------------------------------------------
 
     const formatTimeSlot =
         (timeSlot) => {
@@ -24,6 +29,10 @@ function AppointmentCard({
             }
         };
 
+
+    // -------------------------------------------------
+    // APPOINTMENT STATUS BADGE
+    // -------------------------------------------------
 
     const getAppointmentBadge =
         (status) => {
@@ -48,6 +57,10 @@ function AppointmentCard({
         };
 
 
+    // -------------------------------------------------
+    // PAYMENT STATUS BADGE
+    // -------------------------------------------------
+
     const getPaymentBadge =
         (status) => {
 
@@ -68,6 +81,10 @@ function AppointmentCard({
         };
 
 
+    // -------------------------------------------------
+    // CAN PATIENT CANCEL?
+    // -------------------------------------------------
+
     const canCancel =
 
         appointment.appointmentStatus ===
@@ -85,6 +102,9 @@ function AppointmentCard({
 
             <div className="card-body">
 
+
+                {/* DOCTOR + STATUS */}
+
                 <div
                     className="
                         d-flex
@@ -99,15 +119,18 @@ function AppointmentCard({
                         <h5 className="mb-1">
 
                             {
-                                appointment.doctorName
+                                appointment
+                                    .doctorName
                             }
 
                         </h5>
 
+
                         <p className="text-primary mb-0">
 
                             {
-                                appointment.specialization
+                                appointment
+                                    .specialization
                             }
 
                         </p>
@@ -139,16 +162,22 @@ function AppointmentCard({
                 <hr />
 
 
+                {/* APPOINTMENT ID */}
+
                 <p className="mb-2">
 
                     <strong>
                         Appointment ID:
                     </strong>{" "}
 
-                    {appointment.id}
+                    {
+                        appointment.id
+                    }
 
                 </p>
 
+
+                {/* DATE */}
 
                 <p className="mb-2">
 
@@ -164,6 +193,8 @@ function AppointmentCard({
                 </p>
 
 
+                {/* TIME */}
+
                 <p className="mb-2">
 
                     <strong>
@@ -172,12 +203,15 @@ function AppointmentCard({
 
                     {
                         formatTimeSlot(
-                            appointment.timeSlot
+                            appointment
+                                .timeSlot
                         )
                     }
 
                 </p>
 
+
+                {/* CONSULTATION FEE */}
 
                 <p className="mb-2">
 
@@ -192,6 +226,8 @@ function AppointmentCard({
 
                 </p>
 
+
+                {/* PAYMENT STATUS */}
 
                 <p className="mb-4">
 
@@ -220,11 +256,14 @@ function AppointmentCard({
                 </p>
 
 
+                {/* CANCEL BUTTON */}
+
                 {
                     canCancel
                     && (
 
                         <button
+                            type="button"
                             className="btn btn-outline-danger w-100"
                             onClick={
                                 () =>
@@ -253,6 +292,8 @@ function AppointmentCard({
                 }
 
 
+                {/* VIEW PRESCRIPTION */}
+
                 {
                     appointment
                         .appointmentStatus ===
@@ -260,18 +301,23 @@ function AppointmentCard({
                     && (
 
                         <button
+                            type="button"
                             className="btn btn-outline-primary w-100"
-                            disabled
+                            onClick={
+                                () =>
+                                    onViewPrescription(
+                                        appointment.id
+                                    )
+                            }
                         >
-
                             View Prescription
-                            — Coming Soon
-
                         </button>
 
                     )
                 }
 
+
+                {/* CANCELLED MESSAGE */}
 
                 {
                     appointment
@@ -294,6 +340,7 @@ function AppointmentCard({
 
                     )
                 }
+
 
             </div>
 

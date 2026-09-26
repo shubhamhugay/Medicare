@@ -18,6 +18,9 @@ function PatientDashboard() {
 
         <div className="container py-5">
 
+
+            {/* WELCOME SECTION */}
+
             <div className="mb-5">
 
                 <h2>
@@ -52,12 +55,12 @@ function PatientDashboard() {
                                 name and consultation fee.
                             </p>
 
-                            <button
+                            <Link
+                                to="/patient/doctors"
                                 className="btn btn-primary"
-                                disabled
                             >
-                                Coming Next
-                            </button>
+                                Find Doctor
+                            </Link>
 
                         </div>
 
@@ -66,7 +69,7 @@ function PatientDashboard() {
                 </div>
 
 
-                {/* APPOINTMENTS */}
+                {/* MY APPOINTMENTS */}
 
                 <div className="col-md-6 col-lg-3">
 
@@ -79,8 +82,8 @@ function PatientDashboard() {
                             </h5>
 
                             <p className="card-text text-secondary">
-                                View upcoming and completed
-                                appointments.
+                                View upcoming, completed
+                                and cancelled appointments.
                             </p>
 
                             <Link
@@ -115,10 +118,10 @@ function PatientDashboard() {
                             </p>
 
                             <Link
-                                to="/patient/doctors"
-                                className="btn btn-primary"
+                                to="/patient/appointments"
+                                className="btn btn-outline-primary"
                             >
-                                Find Doctor
+                                View Prescriptions
                             </Link>
 
                         </div>
