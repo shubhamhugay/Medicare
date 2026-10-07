@@ -300,7 +300,22 @@ function MyAppointments() {
         );
     }
 
+    const handlePaymentSuccess =
+        (updatedAppointment) => {
 
+            setAppointments(
+                previousAppointments =>
+                    previousAppointments.map(
+                        appointment =>
+                            appointment.id ===
+                                updatedAppointment.id
+
+                                ? updatedAppointment
+
+                                : appointment
+                    )
+            );
+        };
     // -------------------------------------------------
     // PAGE
     // -------------------------------------------------
@@ -391,6 +406,10 @@ function MyAppointments() {
 
                                                 onViewPrescription={
                                                     handleViewPrescription
+                                                }
+
+                                                onPaymentSuccess={
+                                                    handlePaymentSuccess
                                                 }
 
                                             />

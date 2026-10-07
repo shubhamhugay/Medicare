@@ -1,14 +1,14 @@
+import PaymentButton from "../payment/PaymentButton";
+
+
 function AppointmentCard({
     appointment,
     onCancel,
     cancellingId,
-    onViewPrescription
+    onViewPrescription,
+    onPaymentSuccess
 }) {
 
-
-    // -------------------------------------------------
-    // FORMAT TIME SLOT
-    // -------------------------------------------------
 
     const formatTimeSlot =
         (timeSlot) => {
@@ -29,10 +29,6 @@ function AppointmentCard({
             }
         };
 
-
-    // -------------------------------------------------
-    // APPOINTMENT STATUS BADGE
-    // -------------------------------------------------
 
     const getAppointmentBadge =
         (status) => {
@@ -57,10 +53,6 @@ function AppointmentCard({
         };
 
 
-    // -------------------------------------------------
-    // PAYMENT STATUS BADGE
-    // -------------------------------------------------
-
     const getPaymentBadge =
         (status) => {
 
@@ -81,19 +73,29 @@ function AppointmentCard({
         };
 
 
-    // -------------------------------------------------
-    // CAN PATIENT CANCEL?
-    // -------------------------------------------------
+    const canPay =
 
-    const canCancel =
-
-        appointment.appointmentStatus ===
+        appointment
+            .appointmentStatus ===
             "PENDING"
 
-        ||
+        &&
 
-        appointment.appointmentStatus ===
-            "CONFIRMED";
+        appointment
+            .paymentStatus ===
+            "UNPAID";
+
+
+    /*
+     * Refunds are not part
+     * of the project.
+     *
+     * So paid appointments
+     * cannot be cancelled.
+     */
+    // eslint-disable-next-line no-unused-vars
+    const canCancel =
+        canPay;
 
 
     return (
@@ -102,8 +104,6 @@ function AppointmentCard({
 
             <div className="card-body">
 
-
-                {/* DOCTOR + STATUS */}
 
                 <div
                     className="
@@ -117,22 +117,17 @@ function AppointmentCard({
                     <div>
 
                         <h5 className="mb-1">
-
                             {
                                 appointment
                                     .doctorName
                             }
-
                         </h5>
 
-
                         <p className="text-primary mb-0">
-
                             {
                                 appointment
                                     .specialization
                             }
-
                         </p>
 
                     </div>
@@ -162,22 +157,16 @@ function AppointmentCard({
                 <hr />
 
 
-                {/* APPOINTMENT ID */}
-
                 <p className="mb-2">
 
                     <strong>
                         Appointment ID:
                     </strong>{" "}
 
-                    {
-                        appointment.id
-                    }
+                    {appointment.id}
 
                 </p>
 
-
-                {/* DATE */}
 
                 <p className="mb-2">
 
@@ -192,8 +181,6 @@ function AppointmentCard({
 
                 </p>
 
-
-                {/* TIME */}
 
                 <p className="mb-2">
 
@@ -211,8 +198,6 @@ function AppointmentCard({
                 </p>
 
 
-                {/* CONSULTATION FEE */}
-
                 <p className="mb-2">
 
                     <strong>
@@ -226,8 +211,6 @@ function AppointmentCard({
 
                 </p>
 
-
-                {/* PAYMENT STATUS */}
 
                 <p className="mb-4">
 
@@ -256,37 +239,77 @@ function AppointmentCard({
                 </p>
 
 
-                {/* CANCEL BUTTON */}
+                {/* PAYMENT + CANCEL */}
 
                 {
-                    canCancel
+                    canPay
                     && (
 
-                        <button
-                            type="button"
-                            className="btn btn-outline-danger w-100"
-                            onClick={
-                                () =>
-                                    onCancel(
-                                        appointment.id
-                                    )
-                            }
-                            disabled={
-                                cancellingId ===
-                                appointment.id
-                            }
-                        >
+                        <div className="d-grid gap-2">
 
-                            {
-                                cancellingId ===
-                                appointment.id
+                            <PaymentButton
+                                appointment={
+                                    appointment
+                                }
+                                onPaymentSuccess={
+                                    onPaymentSuccess
+                                }
+                            />
 
-                                    ? "Cancelling..."
 
-                                    : "Cancel Appointment"
-                            }
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger"
+                                onClick={
+                                    () =>
+                                        onCancel(
+                                            appointment.id
+                                        )
+                                }
+                                disabled={
+                                    cancellingId ===
+                                    appointment.id
+                                }
+                            >
 
-                        </button>
+                                {
+                                    cancellingId ===
+                                    appointment.id
+
+                                        ? "Cancelling..."
+
+                                        : "Cancel Appointment"
+                                }
+
+                            </button>
+
+                        </div>
+
+                    )
+                }
+
+
+                {/* CONFIRMED */}
+
+                {
+                    appointment
+                        .appointmentStatus ===
+                        "CONFIRMED"
+
+                    &&
+
+                    appointment
+                        .paymentStatus ===
+                        "PAID"
+
+                    && (
+
+                        <div className="alert alert-success mb-0">
+
+                            Payment completed.
+                            Appointment confirmed.
+
+                        </div>
 
                     )
                 }
@@ -317,7 +340,7 @@ function AppointmentCard({
                 }
 
 
-                {/* CANCELLED MESSAGE */}
+                {/* CANCELLED */}
 
                 {
                     appointment
@@ -340,7 +363,6 @@ function AppointmentCard({
 
                     )
                 }
-
 
             </div>
 

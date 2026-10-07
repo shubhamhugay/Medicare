@@ -5,6 +5,7 @@ import javax.crypto.SecretKey;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
 
+
 public class JwtSecretGenerator {
 
     public static void main(String[] args) {
@@ -14,11 +15,13 @@ public class JwtSecretGenerator {
                         .key()
                         .build();
 
+
         String secret =
-                Encoders.BASE64
+                Encoders.BASE64URL
                         .encode(
                                 key.getEncoded()
                         );
+
 
         System.out.println(secret);
     }

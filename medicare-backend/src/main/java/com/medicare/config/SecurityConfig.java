@@ -16,14 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import java.util.List;
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.medicare.security.CustomUserDetailsService;
 import com.medicare.security.JwtAuthenticationFilter;
-
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -253,6 +252,12 @@ public class SecurityConfig {
                                          * anything we forgot to configure
                                          * is denied.
                                          */
+                                        // Patient payment APIs
+                                        .requestMatchers(
+                                                HttpMethod.POST,
+                                                "/api/payments/**"
+                                        )
+                                        .hasRole("PATIENT")
                                         .anyRequest()
                                         .denyAll()
                 )

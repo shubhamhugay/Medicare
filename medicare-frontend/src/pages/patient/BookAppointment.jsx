@@ -10,6 +10,7 @@ import {
 
 import doctorService from "../../services/doctorService";
 
+import PaymentButton from "../../components/payment/PaymentButton";
 import appointmentService from "../../services/appointmentService";
 
 
@@ -46,7 +47,7 @@ function BookAppointment() {
 
     const [success, setSuccess] =
         useState(null);
-const loadDoctor =
+    const loadDoctor =
         async () => {
 
             try {
@@ -87,7 +88,7 @@ const loadDoctor =
     }, [doctorId]);
 
 
-    
+
 
 
     const getToday = () => {
@@ -186,7 +187,13 @@ const loadDoctor =
                 setBooking(false);
             }
         };
+    const handlePaymentSuccess =
+        (updatedAppointment) => {
 
+            setSuccess(
+                updatedAppointment
+            );
+        };
 
     if (loadingDoctor) {
 
@@ -357,88 +364,138 @@ const loadDoctor =
                     {/* SUCCESS */}
 
                     {success && (
+                        <div className="card shadow-sm">
+                            <div
+                                className={
+                                    success.paymentStatus === "PAID"
+                                        ? "alert alert-success"
+                                        : "alert alert-info"
+                                }
+                            >
 
-                        <div className="alert alert-success">
+                                <h5>
 
-                            <h5>
-                                Appointment Booked
-                            </h5>
-
-                            <p className="mb-1">
-
-                                Appointment ID:{" "}
-
-                                <strong>
-                                    {success.id}
-                                </strong>
-
-                            </p>
-
-
-                            <p className="mb-1">
-
-                                Doctor:{" "}
-
-                                <strong>
-                                    {success.doctorName}
-                                </strong>
-
-                            </p>
-
-
-                            <p className="mb-1">
-
-                                Date:{" "}
-
-                                <strong>
                                     {
-                                        success.appointmentDate
+                                        success.paymentStatus ===
+                                            "PAID"
+
+                                            ? "Appointment Confirmed"
+
+                                            : "Appointment Created"
                                     }
-                                </strong>
 
-                            </p>
-
-
-                            <p className="mb-1">
-
-                                Slot:{" "}
-
-                                <strong>
-                                    {success.timeSlot}
-                                </strong>
-
-                            </p>
+                                </h5>
 
 
-                            <p className="mb-1">
+                                <p className="mb-1">
 
-                                Status:{" "}
+                                    Appointment ID:{" "}
 
-                                <strong>
-                                    {
-                                        success.appointmentStatus
-                                    }
-                                </strong>
+                                    <strong>
+                                        {success.id}
+                                    </strong>
 
-                            </p>
+                                </p>
 
 
-                            <p className="mb-0">
+                                <p className="mb-1">
 
-                                Payment:{" "}
+                                    Doctor:{" "}
 
-                                <strong>
-                                    {
-                                        success.paymentStatus
-                                    }
-                                </strong>
+                                    <strong>
+                                        {
+                                            success.doctorName
+                                        }
+                                    </strong>
 
-                            </p>
+                                </p>
 
+
+                                <p className="mb-1">
+
+                                    Date:{" "}
+
+                                    <strong>
+                                        {
+                                            success.appointmentDate
+                                        }
+                                    </strong>
+
+                                </p>
+
+
+                                <p className="mb-1">
+
+                                    Status:{" "}
+
+                                    <strong>
+                                        {
+                                            success.appointmentStatus
+                                        }
+                                    </strong>
+
+                                </p>
+
+
+                                <p className="mb-3">
+
+                                    Payment:{" "}
+
+                                    <strong>
+                                        {
+                                            success.paymentStatus
+                                        }
+                                    </strong>
+
+                                </p>
+
+
+                                {
+                                    success.paymentStatus ===
+                                    "UNPAID"
+
+                                    &&
+
+                                    success.appointmentStatus ===
+                                    "PENDING"
+
+                                    && (
+
+                                        <PaymentButton
+
+                                            appointment={
+                                                success
+                                            }
+
+                                            onPaymentSuccess={
+                                                handlePaymentSuccess
+                                            }
+
+                                        />
+
+                                    )
+                                }
+
+
+                                {
+                                    success.paymentStatus ===
+                                    "PAID"
+                                    && (
+
+                                        <Link
+                                            to="/patient/appointments"
+                                            className="btn btn-primary"
+                                        >
+                                            View My Appointments
+                                        </Link>
+
+                                    )
+                                }
+
+                            </div>
                         </div>
 
                     )}
-
 
                     {/* BOOKING FORM */}
 

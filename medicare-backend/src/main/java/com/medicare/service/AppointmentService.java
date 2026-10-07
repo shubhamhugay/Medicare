@@ -185,106 +185,204 @@ public class AppointmentService {
         );
     }
     @PreAuthorize("hasRole('PATIENT')")
-    public AppointmentResponse cancelAppointment(
+    public AppointmentResponse
+    cancelAppointment(
             Long appointmentId,
             String email) {
 
+
         User patient =
-                findUserByEmail(email);
+                findUserByEmail(
+                        email
+                );
+
 
         Appointment appointment =
                 findAppointmentById(
                         appointmentId
                 );
 
-        if (!appointment
-                .getPatient()
-                .getId()
-                .equals(patient.getId())) {
+
+        if (
+                !appointment
+                        .getPatient()
+                        .getId()
+                        .equals(
+                                patient.getId()
+                        )
+        ) {
 
             throw new AccessDeniedException(
                     "You cannot cancel this appointment"
             );
         }
 
-        if (appointment.getAppointmentStatus()
-                == AppointmentStatus.COMPLETED) {
+
+        if (
+                appointment
+                        .getAppointmentStatus()
+                        ==
+                        AppointmentStatus.COMPLETED
+        ) {
 
             throw new IllegalArgumentException(
                     "Completed appointment cannot be cancelled"
             );
         }
 
-        if (appointment.getAppointmentStatus()
-                == AppointmentStatus.CANCELLED) {
+
+        if (
+                appointment
+                        .getAppointmentStatus()
+                        ==
+                        AppointmentStatus.CANCELLED
+        ) {
 
             throw new IllegalArgumentException(
                     "Appointment is already cancelled"
             );
         }
 
-        appointment.setAppointmentStatus(
-                AppointmentStatus.CANCELLED
-        );
+
+        /*
+         * Refund flow is not part
+         * of this project.
+         */
+        if (
+                appointment
+                        .getPaymentStatus()
+                        ==
+                        PaymentStatus.PAID
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Paid appointment cannot be cancelled"
+            );
+        }
+
+
+        appointment
+                .setAppointmentStatus(
+                        AppointmentStatus.CANCELLED
+                );
+
 
         return mapToAppointmentResponse(
                 appointmentRepository
-                        .save(appointment)
+                        .save(
+                                appointment
+                        )
         );
     }
 
 
 
-
-
-
-
-
     @PreAuthorize("hasRole('DOCTOR')")
-    public AppointmentResponse completeAppointment(
+    public AppointmentResponse
+    completeAppointment(
             Long appointmentId,
             String email) {
 
+
         User user =
-                findUserByEmail(email);
+                findUserByEmail(
+                        email
+                );
+
 
         DoctorProfile doctor =
                 findDoctorByUserId(
                         user.getId()
                 );
 
+
         Appointment appointment =
                 findAppointmentById(
                         appointmentId
                 );
 
-        if (!appointment
-                .getDoctor()
-                .getId()
-                .equals(doctor.getId())) {
+
+        if (
+                !appointment
+                        .getDoctor()
+                        .getId()
+                        .equals(
+                                doctor.getId()
+                        )
+        ) {
 
             throw new AccessDeniedException(
                     "You cannot complete this appointment"
             );
         }
 
-        if (appointment.getAppointmentStatus()
-                == AppointmentStatus.CANCELLED) {
+
+        if (
+                appointment
+                        .getAppointmentStatus()
+                        ==
+                        AppointmentStatus.CANCELLED
+        ) {
 
             throw new IllegalArgumentException(
                     "Cancelled appointment cannot be completed"
             );
         }
 
-        appointment.setAppointmentStatus(
-                AppointmentStatus.COMPLETED
-        );
+
+        if (
+                appointment
+                        .getAppointmentStatus()
+                        ==
+                        AppointmentStatus.COMPLETED
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment is already completed"
+            );
+        }
+
+
+        /*
+         * After Phase 13,
+         * consultation can be completed
+         * only after successful payment.
+         */
+        if (
+                appointment
+                        .getAppointmentStatus()
+                        !=
+                        AppointmentStatus.CONFIRMED
+                        ||
+                        appointment
+                                .getPaymentStatus()
+                                !=
+                                PaymentStatus.PAID
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Only confirmed and paid appointments can be completed"
+            );
+        }
+
+
+        appointment
+                .setAppointmentStatus(
+                        AppointmentStatus.COMPLETED
+                );
+
 
         return mapToAppointmentResponse(
                 appointmentRepository
-                        .save(appointment)
+                        .save(
+                                appointment
+                        )
         );
     }
+
+
+
+
 
     private List<AppointmentResponse>
     mapAppointmentList(

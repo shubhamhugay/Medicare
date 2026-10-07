@@ -10,6 +10,10 @@ function DoctorAppointmentCard({
 }) {
 
 
+    // -------------------------------------------------
+    // FORMAT TIME SLOT
+    // -------------------------------------------------
+
     const formatTimeSlot =
         (timeSlot) => {
 
@@ -29,6 +33,10 @@ function DoctorAppointmentCard({
             }
         };
 
+
+    // -------------------------------------------------
+    // APPOINTMENT STATUS BADGE
+    // -------------------------------------------------
 
     const getStatusBadge =
         (status) => {
@@ -53,15 +61,34 @@ function DoctorAppointmentCard({
         };
 
 
+    // -------------------------------------------------
+    // CAN DOCTOR COMPLETE?
+    // -------------------------------------------------
+
     const canComplete =
 
-        appointment.appointmentStatus !==
-            "COMPLETED"
+        appointment.appointmentStatus ===
+            "CONFIRMED"
 
         &&
 
-        appointment.appointmentStatus !==
-            "CANCELLED";
+        appointment.paymentStatus ===
+            "PAID";
+
+
+    // -------------------------------------------------
+    // WAITING FOR PAYMENT?
+    // -------------------------------------------------
+
+    const waitingForPayment =
+
+        appointment.appointmentStatus ===
+            "PENDING"
+
+        &&
+
+        appointment.paymentStatus ===
+            "UNPAID";
 
 
     return (
@@ -70,6 +97,8 @@ function DoctorAppointmentCard({
 
             <div className="card-body">
 
+
+                {/* PATIENT + STATUS */}
 
                 <div
                     className="
@@ -89,6 +118,7 @@ function DoctorAppointmentCard({
                             }
 
                         </h5>
+
 
                         <small className="text-secondary">
 
@@ -123,6 +153,8 @@ function DoctorAppointmentCard({
                 <hr />
 
 
+                {/* APPOINTMENT ID */}
+
                 <p className="mb-2">
 
                     <strong>
@@ -133,6 +165,8 @@ function DoctorAppointmentCard({
 
                 </p>
 
+
+                {/* DATE */}
 
                 <p className="mb-2">
 
@@ -148,6 +182,8 @@ function DoctorAppointmentCard({
                 </p>
 
 
+                {/* TIME */}
+
                 <p className="mb-2">
 
                     <strong>
@@ -156,12 +192,15 @@ function DoctorAppointmentCard({
 
                     {
                         formatTimeSlot(
-                            appointment.timeSlot
+                            appointment
+                                .timeSlot
                         )
                     }
 
                 </p>
 
+
+                {/* CONSULTATION FEE */}
 
                 <p className="mb-2">
 
@@ -177,6 +216,8 @@ function DoctorAppointmentCard({
                 </p>
 
 
+                {/* PAYMENT STATUS */}
+
                 <p className="mb-4">
 
                     <strong>
@@ -191,11 +232,36 @@ function DoctorAppointmentCard({
                 </p>
 
 
+                {/* WAITING FOR PATIENT PAYMENT */}
+
+                {
+                    waitingForPayment
+                    && (
+
+                        <div
+                            className="
+                                alert
+                                alert-warning
+                                mb-0
+                            "
+                        >
+
+                            Waiting for patient payment.
+
+                        </div>
+
+                    )
+                }
+
+
+                {/* MARK COMPLETED */}
+
                 {
                     canComplete
                     && (
 
                         <button
+                            type="button"
                             className="btn btn-success w-100"
                             onClick={
                                 () =>
@@ -211,7 +277,7 @@ function DoctorAppointmentCard({
 
                             {
                                 completingId ===
-                                appointment.id
+                                    appointment.id
 
                                     ? "Completing..."
 
@@ -223,6 +289,8 @@ function DoctorAppointmentCard({
                     )
                 }
 
+
+                {/* PRESCRIPTION */}
 
                 {
                     appointment
@@ -242,6 +310,8 @@ function DoctorAppointmentCard({
                     )
                 }
 
+
+                {/* CANCELLED */}
 
                 {
                     appointment
@@ -264,6 +334,7 @@ function DoctorAppointmentCard({
 
                     )
                 }
+
 
             </div>
 

@@ -15,13 +15,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+
 @Entity
 @Table(name = "appointments")
 public class Appointment {
 
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY
+    )
     private Long id;
+
 
     @ManyToOne
     @JoinColumn(
@@ -30,6 +35,7 @@ public class Appointment {
     )
     private User patient;
 
+
     @ManyToOne
     @JoinColumn(
             name = "doctor_id",
@@ -37,11 +43,13 @@ public class Appointment {
     )
     private DoctorProfile doctor;
 
+
     @Column(
             name = "appointment_date",
             nullable = false
     )
     private LocalDate appointmentDate;
+
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -49,6 +57,7 @@ public class Appointment {
             nullable = false
     )
     private TimeSlot timeSlot;
+
 
     @Column(
             name = "consultation_fee",
@@ -58,6 +67,7 @@ public class Appointment {
     )
     private BigDecimal consultationFee;
 
+
     @Enumerated(EnumType.STRING)
     @Column(
             name = "appointment_status",
@@ -65,6 +75,7 @@ public class Appointment {
     )
     private AppointmentStatus appointmentStatus =
             AppointmentStatus.PENDING;
+
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -74,6 +85,31 @@ public class Appointment {
     private PaymentStatus paymentStatus =
             PaymentStatus.UNPAID;
 
+
+    // Razorpay order created before payment
+    @Column(
+            name = "razorpay_order_id",
+            unique = true,
+            length = 100
+    )
+    private String razorpayOrderId;
+
+
+    // Razorpay payment received after success
+    @Column(
+            name = "razorpay_payment_id",
+            unique = true,
+            length = 100
+    )
+    private String razorpayPaymentId;
+
+
+    @Column(
+            name = "paid_at"
+    )
+    private LocalDateTime paidAt;
+
+
     @Column(
             name = "created_at",
             nullable = false,
@@ -82,76 +118,144 @@ public class Appointment {
     private LocalDateTime createdAt =
             LocalDateTime.now();
 
+
     public Appointment() {
     }
+
 
     public Long getId() {
         return id;
     }
 
+
     public User getPatient() {
         return patient;
     }
 
-    public void setPatient(User patient) {
+
+    public void setPatient(
+            User patient) {
+
         this.patient = patient;
     }
+
 
     public DoctorProfile getDoctor() {
         return doctor;
     }
 
-    public void setDoctor(DoctorProfile doctor) {
+
+    public void setDoctor(
+            DoctorProfile doctor) {
+
         this.doctor = doctor;
     }
+
 
     public LocalDate getAppointmentDate() {
         return appointmentDate;
     }
 
+
     public void setAppointmentDate(
             LocalDate appointmentDate) {
 
-        this.appointmentDate = appointmentDate;
+        this.appointmentDate =
+                appointmentDate;
     }
+
 
     public TimeSlot getTimeSlot() {
         return timeSlot;
     }
 
-    public void setTimeSlot(TimeSlot timeSlot) {
-        this.timeSlot = timeSlot;
+
+    public void setTimeSlot(
+            TimeSlot timeSlot) {
+
+        this.timeSlot =
+                timeSlot;
     }
+
 
     public BigDecimal getConsultationFee() {
         return consultationFee;
     }
 
+
     public void setConsultationFee(
             BigDecimal consultationFee) {
 
-        this.consultationFee = consultationFee;
+        this.consultationFee =
+                consultationFee;
     }
 
-    public AppointmentStatus getAppointmentStatus() {
+
+    public AppointmentStatus
+    getAppointmentStatus() {
+
         return appointmentStatus;
     }
+
 
     public void setAppointmentStatus(
             AppointmentStatus appointmentStatus) {
 
-        this.appointmentStatus = appointmentStatus;
+        this.appointmentStatus =
+                appointmentStatus;
     }
+
 
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;
     }
 
+
     public void setPaymentStatus(
             PaymentStatus paymentStatus) {
 
-        this.paymentStatus = paymentStatus;
+        this.paymentStatus =
+                paymentStatus;
     }
+
+
+    public String getRazorpayOrderId() {
+        return razorpayOrderId;
+    }
+
+
+    public void setRazorpayOrderId(
+            String razorpayOrderId) {
+
+        this.razorpayOrderId =
+                razorpayOrderId;
+    }
+
+
+    public String getRazorpayPaymentId() {
+        return razorpayPaymentId;
+    }
+
+
+    public void setRazorpayPaymentId(
+            String razorpayPaymentId) {
+
+        this.razorpayPaymentId =
+                razorpayPaymentId;
+    }
+
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+
+    public void setPaidAt(
+            LocalDateTime paidAt) {
+
+        this.paidAt = paidAt;
+    }
+
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

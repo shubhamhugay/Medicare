@@ -229,4 +229,32 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
+
+
+
+    @ExceptionHandler(
+            PaymentException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handlePaymentException(
+            PaymentException exception,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_GATEWAY.value(),
+                        exception.getMessage(),
+                        request.getRequestURI()
+                );
+
+
+        return ResponseEntity
+                .status(
+                        HttpStatus.BAD_GATEWAY
+                )
+                .body(
+                        errorResponse
+                );
+    }
 }
