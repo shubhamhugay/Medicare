@@ -85,6 +85,7 @@ function BookAppointment() {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadDoctor();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [doctorId]);
 
 

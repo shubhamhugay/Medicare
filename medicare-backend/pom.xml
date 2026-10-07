@@ -78,7 +78,11 @@
 			<scope>runtime</scope>
 		</dependency>
 
-
+		<!-- Email -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 		<!-- Razorpay Payment Gateway -->
 		<dependency>
 			<groupId>com.razorpay</groupId>

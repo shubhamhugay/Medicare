@@ -48,6 +48,9 @@ public class PaymentService {
     private final AppointmentService
             appointmentService;
 
+    private final EmailService
+            emailService;
+
 
     @Value("${razorpay.key-id}")
     private String keyId;
@@ -60,7 +63,7 @@ public class PaymentService {
     public PaymentService(
             AppointmentRepository appointmentRepository,
             UserRepository userRepository,
-            AppointmentService appointmentService) {
+            AppointmentService appointmentService, EmailService emailService) {
 
         this.appointmentRepository =
                 appointmentRepository;
@@ -70,6 +73,7 @@ public class PaymentService {
 
         this.appointmentService =
                 appointmentService;
+        this.emailService = emailService;
     }
 
 
@@ -531,22 +535,29 @@ public class PaymentService {
                             LocalDateTime.now()
                     );
 
-
             appointmentRepository
                     .save(
                             appointment
                     );
 
 
-            /*
-             * Reuse our existing DTO.
-             * No PaymentVerificationResponse DTO.
-             */
-            return appointmentService
-                    .getAppointmentById(
-                            appointmentId,
-                            email
+            AppointmentResponse
+                    appointmentResponse =
+                    appointmentService
+                            .getAppointmentById(
+                                    appointmentId,
+                                    email
+                            );
+
+
+            emailService
+                    .sendAppointmentConfirmation(
+                            patient.getEmail(),
+                            appointmentResponse
                     );
+
+
+            return appointmentResponse;
 
 
         } catch (
